@@ -205,3 +205,87 @@ class GPT(nn.Module):
         breakdown["total_trainable"] = self.count_parameters(trainable_only=True)
         breakdown["total_all"] = self.count_parameters(trainable_only=False)
         return breakdown
+
+    @torch.no_grad()
+    def generate(
+        self,
+        input_ids: torch.Tensor,
+        max_new_tokens: int = 80,
+        *,
+        temperature: float = 1.0,
+        top_k: int | None = None,
+        top_p: float | None = None,
+        repetition_penalty: float = 1.0,
+    ) -> torch.Tensor:
+        """Autoregressively generate next tokens given conditioning prefix input_ids (B, T).
+
+        Args:
+            input_ids: (B, T) conditioning token IDs.
+            max_new_tokens: Number of new tokens to generate.
+            temperature: Sampling temperature (> 0.0). Higher = more diverse, lower = more deterministic.
+            top_k: Optional top-k filtering threshold.
+            top_p: Optional nucleus sampling (top-p) threshold.
+            repetition_penalty: Optional penalty (> 1.0) applied to previously generated tokens.
+
+        Returns:
+            (B, T + max_new_tokens) sequence of generated token IDs.
+        """
+        was_training = self.training
+        self.eval()
+
+        for _ in range(max_new_tokens):
+            # Crop conditioning prefix to context_length if it exceeds max capacity
+            idx_cond = (
+                input_ids
+                if input_ids.size(1) <= self.context_length
+                else input_ids[:, -self.context_length :]
+            )
+
+            # Forward pass: (B, T_cond, vocab_size)
+            logits = self(idx_cond)
+
+            # Focus only on logits at the last position: (B, vocab_size)
+            logits = logits[:, -1, :]
+
+            # Apply repetition penalty if specified
+            if repetition_penalty != 1.0:
+                for b in range(input_ids.size(0)):
+                    for token_id in set(input_ids[b].tolist()):
+                        if logits[b, token_id] > 0:
+                            logits[b, token_id] /= repetition_penalty
+                        else:
+                            logits[b, token_id] *= repetition_penalty
+
+            # Temperature and sampling
+            if temperature <= 0.0 or temperature < 1e-6:
+                next_token = torch.argmax(logits, dim=-1, keepdim=True)
+            else:
+                logits = logits / temperature
+
+                # Top-k filtering
+                if top_k is not None and top_k > 0:
+                    v, _ = torch.topk(logits, min(top_k, logits.size(-1)))
+                    logits[logits < v[:, [-1]]] = -float("Inf")
+
+                # Top-p (nucleus) filtering
+                if top_p is not None and 0.0 < top_p < 1.0:
+                    sorted_logits, sorted_indices = torch.sort(logits, descending=True)
+                    cumulative_probs = torch.cumsum(torch.softmax(sorted_logits, dim=-1), dim=-1)
+                    sorted_indices_to_remove = cumulative_probs > top_p
+                    sorted_indices_to_remove[:, 1:] = sorted_indices_to_remove[:, :-1].clone()
+                    sorted_indices_to_remove[:, 0] = False
+                    indices_to_remove = sorted_indices_to_remove.scatter(
+                        1, sorted_indices, sorted_indices_to_remove
+                    )
+                    logits[indices_to_remove] = -float("Inf")
+
+                probs = torch.softmax(logits, dim=-1)
+                next_token = torch.multinomial(probs, num_samples=1)
+
+            # Append sampled token to sequence
+            input_ids = torch.cat((input_ids, next_token), dim=1)
+
+        if was_training:
+            self.train()
+
+        return input_ids

@@ -343,3 +343,37 @@ class TestGPTTrainEval:
         out2 = model2(ids)
 
         assert torch.equal(out1, out2), "reloaded model must produce identical output"
+
+
+class TestGPTGeneration:
+    def test_generate_output_length(self):
+        config = make_config(context_length=32)
+        model = GPT(config)
+        prompt = torch.randint(0, 50, (1, 4))
+        gen = model.generate(prompt, max_new_tokens=10)
+        assert gen.shape == (1, 14)
+        # Prefix must match original prompt
+        assert torch.equal(gen[:, :4], prompt)
+
+    def test_generate_greedy_deterministic(self):
+        config = make_config(context_length=32)
+        model = GPT(config)
+        prompt = torch.randint(0, 50, (1, 4))
+        gen1 = model.generate(prompt, max_new_tokens=8, temperature=0.0)
+        gen2 = model.generate(prompt, max_new_tokens=8, temperature=0.0)
+        assert torch.equal(gen1, gen2)
+
+    def test_generate_top_k_and_top_p(self):
+        config = make_config(context_length=32)
+        model = GPT(config)
+        prompt = torch.randint(0, 50, (1, 4))
+        gen = model.generate(prompt, max_new_tokens=8, temperature=0.8, top_k=5, top_p=0.9)
+        assert gen.shape == (1, 12)
+
+    def test_generate_exceeds_context_cropping(self):
+        config = make_config(context_length=8)
+        model = GPT(config)
+        prompt = torch.randint(0, 50, (1, 6))
+        # Generate 6 new tokens so total length is 12 > context_length 8
+        gen = model.generate(prompt, max_new_tokens=6)
+        assert gen.shape == (1, 12)
