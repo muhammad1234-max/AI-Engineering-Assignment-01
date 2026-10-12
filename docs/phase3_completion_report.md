@@ -1,7 +1,7 @@
 # Phase 3 verification and completion receipt
 
-Local engineering validation is complete. Publication and Linux CI results will be
-recorded below once they have actually finished. Only Phase 3 is implemented.
+Phase 3 engineering validation and publication are complete. PR3 is open for review,
+with successful Linux CPU CI on Python 3.11 and 3.14. Only Phase 3 is implemented.
 
 ## A. Repository integrity
 
@@ -18,7 +18,8 @@ recorded below once they have actually finished. Only Phase 3 is implemented.
 * Main was fast-forward synchronized; the Phase 2 source/tests/config/manual/evidence
   tree was compared with the reviewed head and unchanged. All original 136 tests
   then passed before coding. Feature branch: `phase-3-multihead-position`.
-* Final implementation/publication SHA and CI receipt: pending below. The final
+* Verified implementation/publication SHA:
+  `36d35c44fcabc718231f8b7c3795cbb4e73c7206`. Successful actual CI is recorded below. The final
   delivery message supplies the final documentation head, which cannot be embedded
   in its own commit. No main history rewrite or force-push is used.
 * No unrelated project assets, code, configurations, results or checkpoints reused.
@@ -176,10 +177,27 @@ ruff 0.15.4, matplotlib 3.10.8, build 1.6.1, setuptools 84.0.0. No GPU work.
 | `git diff --check` | PASS; routine Windows text-normalization warning only |
 | `scripts/verify_repository.py` | PASS: 65 tracked files, largest 313,423 bytes, zero findings; all evidence/source hashes match |
 
-CI is pending publication, not claimed successful here yet. The staged audit passed.
+Implementation-head CI succeeded for both push and PR on Python 3.11 and 3.14.
+The staged audit passed. Restored the editable development install after the successful
+noneditable-wheel suite. Regenerated F03/F04 from committed sources: exact same local
+content hashes/receipts and a clean worktree. The documentation consistency audit
+checks local links, the exact 24-file inventory, evidence-backed new VERIFIED rows
+and preservation of the old engine/tests/config/manual/reference source.
 CI matrix is Linux Python 3.11/3.14, read-only permissions, CPU dependency installs,
 editable suite, lint/format, committed evidence audit, configuration inspection,
 all F01-F04 verification/generators, build, noneditable wheel install and full suite.
+
+Actual implementation-head push CI:
+https://github.com/zaidbinnaveed/AI-Engineering-Assignment-01/actions/runs/38266041254
+COMPLETED SUCCESS. Job logs confirm Python 3.11 editable **241 passed in 2.35s**
+and installed wheel **241 passed in 1.89s**; Python 3.14 editable **241 passed in
+3.62s** and installed wheel **241 passed in 2.31s**. Both jobs confirm pip check,
+lint/21-file format, Git-index provenance/security PASS, all evidence generators
+and sdist/wheel build. PR CI
+https://github.com/zaidbinnaveed/AI-Engineering-Assignment-01/actions/runs/38266150363
+also COMPLETED SUCCESS on both versions at the same implementation head. All four
+checks are completed SUCCESS; no failure/skip is present. GitHub's displayed workflow
+label retained the previous name, but actual new step executions were checked in logs.
 
 Issues resolved: formatting required rerunning after a long example-bias line;
 fixed example biases were explicitly constructed in float64 rather than cast from
@@ -216,5 +234,9 @@ causal prefix invariance, parameter breakdown/diagram and controlled toy MLM/CLM
 visibility/objective comparison. Corpus download and language-model training remain
 later approvals. This report proposes that plan without implementing it.
 
-PR URL and successful final CI receipt will be recorded below. **Stop after Phase 3;
-do not merge its PR or execute Phase 4 without separate explicit approval.**
+PR: https://github.com/zaidbinnaveed/AI-Engineering-Assignment-01/pull/3,
+verified OPEN and MERGEABLE against main `3b8bcd3...`; it is not merged. Successful
+implementation CI links are above. The final documentation delivery SHA and its
+actual final CI result are supplied in the delivery message after verification.
+**Phase 3 complete. STOPPED: do not merge its PR or execute Phase 4 without separate
+explicit approval. Zaid's personal hand-calculation review remains pending.**
