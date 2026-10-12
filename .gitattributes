@@ -1,0 +1,9 @@
+* text=auto
+*.py text eol=lf
+*.json text eol=lf
+*.toml text eol=lf
+*.yml text eol=lf
+*.md text eol=lf
+# Preserve supplied instruction bytes exactly.
+instructions.txt -text
+docs/master_instructions_v1.0.txt -text

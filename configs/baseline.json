@@ -1,0 +1,21 @@
+{
+  "vocab_size": null,
+  "context_length": 128,
+  "d_model": 128,
+  "n_heads": 4,
+  "n_layers": 4,
+  "ffn_dim": 512,
+  "dropout": 0.1,
+  "optimizer": "adamw",
+  "learning_rate": 0.0003,
+  "batch_size": 16,
+  "train_steps": 1000,
+  "temperature": 0.8,
+  "max_new_tokens": 80,
+  "device": "cpu",
+  "seed": 42,
+  "output_path": "outputs",
+  "tokenizer": "character",
+  "activation": "gelu",
+  "position_encoding": "sinusoidal"
+}
