@@ -2,8 +2,8 @@
 
 Phase 2 engineering deliverables are complete. The academic M01 gate still requires
 Zaid's personal mathematical review/understanding; no such review is claimed here.
-This report records actual evidence, not trained model results. Publication/CI receipts
-are added after completion below. Phase 3 requires separate authorization.
+This report records actual evidence, not trained model results. Publication and
+completed CI receipts are below. Phase 3 requires separate authorization.
 
 ## Identity and integrated starting point
 
@@ -238,3 +238,36 @@ tests and genuine F04. Preserve configuration and existing tests. Full blocks, t
 data, real training, ablations, generation and API remain in their later phases.
 
 **Stop after Phase 2 publication and verified CI; PR2 merge and Phase 3 need approval.**
+
+## Verified publication and final engineering receipt
+
+Implementation commit: `cfc7db3d9a986d0640b3c97648f88ab24a423877` on
+`phase-2-attention-engine`, pushed to the exact authorized origin.
+[PR2](https://github.com/zaidbinnaveed/AI-Engineering-Assignment-01/pull/2) is OPEN,
+base `main` at `f04dd07cb8c5fad8cd21ae19f111b548283706f8`. No Phase 2 merge.
+Final delivery adds only this report/log receipt; its exact final commit is provided
+in the delivery message and can be resolved with `git rev-parse phase-2-attention-engine`
+or PR2's headRefOid. A commit cannot embed its own resulting SHA.
+
+| Actual CI run on implementation commit | Python 3.11 | Python 3.14 | Result |
+| --- | --- | --- | --- |
+| [Push 38260385925](https://github.com/zaidbinnaveed/AI-Engineering-Assignment-01/actions/runs/38260385925) | 136 passed in 2.07s | 136 passed in 2.66s | COMPLETED SUCCESS |
+| [PR 38260453436](https://github.com/zaidbinnaveed/AI-Engineering-Assignment-01/actions/runs/38260453436) | Job completed successfully | Job completed successfully | COMPLETED SUCCESS |
+
+CI job step receipts were inspected, not inferred from submission: dependency
+installation/check, all tests, Ruff lint/format, index audit, configuration CLI,
+seven-matrix verification/F01, F02 generation and sdist/wheel build all SUCCESS on
+both Python versions. The workflow display name initially retained the older cached
+"Phase 1 foundation" name; actual new attention/audit/figure steps were verified.
+
+After installed-wheel validation, restored the editable installation successfully;
+final lint passed and format reported 13 formatted files. Regenerated F01/F02 again:
+the PNG SHA256 values exactly matched the retained report evidence, and `git status
+--short` remained empty. This establishes repeatability in this Windows environment,
+not cross-platform pixel identity. Final index audit: PASS, 49 files, largest 127,047
+bytes, no findings. Source config/reproducibility/original tests/handoffs compared
+against integrated main and have no changes. Working branch tracks the pushed origin.
+
+The final receipt commit's CI is checked before delivery; any result reported in the
+delivery message refers to that exact final head. Phase 2 engineering is complete;
+personal H07/M01 review and authorization for PR2 merge/Phase 3 remain outstanding.

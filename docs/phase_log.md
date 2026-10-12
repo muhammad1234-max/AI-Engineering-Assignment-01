@@ -263,3 +263,37 @@ projections, explicit splitting/permutation/concatenation/merging, shape/referen
 gradient tests, genuine F03; own sinusoidal positions, formula/determinism/offset/
 dtype/device tests, genuine F04. Later milestones retain their own boundaries.
 Phase 2 GitHub publication and final CI receipts are appended only once verified.
+
+## Verified Phase 2 publication and implementation CI
+
+`git commit -m "Implement verified Phase 2 attention, manual derivation and causal evidence"`
+created `cfc7db3d9a986d0640b3c97648f88ab24a423877` (24 changed files).
+`git push origin phase-2-attention-engine` succeeded with approved network access;
+only the dedicated feature branch was created. `gh pr create --repo
+zaidbinnaveed/AI-Engineering-Assignment-01 --base main --head phase-2-attention-engine
+--title ... --body-file tmp/phase2-pr.md` created
+https://github.com/zaidbinnaveed/AI-Engineering-Assignment-01/pull/2.
+Verified OPEN, exact implementation head and base main
+`f04dd07cb8c5fad8cd21ae19f111b548283706f8`. PR2 was not merged.
+Temporary PR body is ignored and uses actual newlines, not escaped shell text.
+
+* Push CI https://github.com/zaidbinnaveed/AI-Engineering-Assignment-01/actions/runs/38260385925
+  COMPLETED SUCCESS, Linux CPU Python 3.11 **136 passed in 2.07s**, Python 3.14
+  **136 passed in 2.66s**. Read job logs for exact counts, not merely pending checks.
+* PR CI https://github.com/zaidbinnaveed/AI-Engineering-Assignment-01/actions/runs/38260453436
+  COMPLETED SUCCESS on both Python jobs at the same implementation head.
+* Actual steps confirmed CPU installation, pip check, pytest, lint/format, staged
+  evidence/source audit, config inspection, seven-matrix/F01 verification, F02
+  generation and package build. Display name initially retained the old workflow
+  label, but the new step list and successes were explicitly checked.
+* Restored editable development install after the successful noneditable-wheel suite;
+  lint passed, all 13 Python files formatted. Full Phase 1 functionality intact.
+* Regenerated both figures from unchanged sources: exact same local PNG SHA256 values,
+  unchanged tracked receipts and clean worktree. Final audit PASS: 49 tracked files,
+  largest 127,047 bytes, no findings. `git diff --cached --check` passed before commit.
+* Final report/log receipt is committed separately so verified implementation remains
+  identifiable. Final-head CI and open PR state are verified again before delivery;
+  final delivery message supplies that exact head SHA.
+
+**Phase 2 engineering COMPLETE. H07/M01 personal mathematics review pending.
+STOPPED — WAITING FOR REVIEW AND EXPLICIT PHASE 3 AUTHORIZATION.**
