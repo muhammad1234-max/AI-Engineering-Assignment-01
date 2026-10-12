@@ -170,7 +170,8 @@ def train(
                 f"Val Loss: {val_loss:.4f} | "
                 f"Val PPL: {perplexity:.2f} | "
                 f"LR: {current_lr:.6f} | "
-                f"Time: {elapsed:.1f}s"
+                f"Time: {elapsed:.1f}s",
+                flush=True,
             )
 
             if log_callback is not None:
@@ -278,7 +279,7 @@ def main():
     history_file = args.output_dir / "training_history.json"
 
     def sample_logger(text: str):
-        print(f"\n--- Generated Sample ---\n{text}\n------------------------\n")
+        print(f"\n--- Generated Sample ---\n{text}\n------------------------\n", flush=True)
 
     result = train(
         model=model,
