@@ -12,7 +12,9 @@ EXPECTED_REMOTE = "https://github.com/zaidbinnaveed/AI-Engineering-Assignment-01
 EVIDENCE_PNGS = {
     "report/evidence/F01_manual_attention.png",
     "report/evidence/F02_causal_mask.png",
+    "report/evidence/F04_positional_encoding.png",
 }
+EVIDENCE_TEXT = {"report/evidence/F03_multihead_shape_trace.txt"}
 
 
 def git(*args: str) -> bytes:
@@ -39,9 +41,13 @@ def main() -> int:
     for name in paths:
         content = git("show", f":{name}")
         max_bytes = max(max_bytes, len(content))
-        if name in EVIDENCE_PNGS:
-            if len(content) > 500_000 or not content.startswith(b"\x89PNG\r\n\x1a\n"):
-                findings.append({"file": name, "reason": "invalid or oversized evidence PNG"})
+        if name in EVIDENCE_PNGS or name in EVIDENCE_TEXT:
+            if (
+                len(content) > 500_000
+                or (name in EVIDENCE_PNGS and not content.startswith(b"\x89PNG\r\n\x1a\n"))
+                or (name in EVIDENCE_TEXT and b"\0" in content)
+            ):
+                findings.append({"file": name, "reason": "invalid or oversized evidence artifact"})
             receipt_path = str(Path(name).with_suffix(".json")).replace("\\", "/")
             if receipt_path not in paths:
                 findings.append({"file": name, "reason": "missing evidence provenance receipt"})

@@ -1,0 +1,1150 @@
+# ZAID'S AI ENGINEERING ASSIGNMENT #01
+## PHASE 3 — MULTI-HEAD ATTENTION AND SINUSOIDAL POSITIONAL ENCODING
+### Complete, sequential Codex implementation specification
+
+**Project:** Build a Small LLM from Scratch  
+**Milestone:** M2 — Multi-Head Attention + Positional Encoding  
+**Execution authorization:** Phase 3 only  
+**Academic authority:** `A1_AIE.pdf`  
+**Master specification:** `docs/master_instructions_v1.0.txt`  
+**Engineering predecessor:** Phase 2, verified PR #2
+
+---
+
+## 0. CRITICAL PROJECT IDENTITY
+
+You are building Zaid's independent AI Engineering Assignment #01.
+
+The ONLY authorized repository is:
+
+`https://github.com/zaidbinnaveed/AI-Engineering-Assignment-01`
+
+Repository owner: `zaidbinnaveed`
+
+Local workspace:
+
+`C:\Users\Zaid\OneDrive\Desktop\AI-Engineering-Assignment-01`
+
+Source package:
+
+`src/zaid_lm/`
+
+All work, tests, results, and documentation must belong exclusively to this assignment.
+
+The previously confused Nano-Language-Model project is entirely unrelated and prohibited as an implementation or experimental source.
+
+Never access, import, reuse, copy, or reference unrelated project artifacts as if they belong to Zaid's assignment.
+
+Do not create another repository.
+
+Do not replace the existing implementation with a new project skeleton.
+
+Do not use pretrained language-model architectures.
+
+---
+
+# PART A — VERIFIED PREDECESSOR STATE
+
+## 1. Phase 2 completion context
+
+Phase 2 has been reviewed against the repository's actual code and assignment specification.
+
+Verified PR:
+
+`https://github.com/zaidbinnaveed/AI-Engineering-Assignment-01/pull/2`
+
+Branch:
+
+`phase-2-attention-engine`
+
+Verified final Phase 2 commit:
+
+`bf9df03a55c16b7dc0018cd4d268c35900f4b336`
+
+Phase 1 is merged into main at:
+
+`f04dd07cb8c5fad8cd21ae19f111b548283706f8`
+
+Phase 2 PR #2 was OPEN AND UNMERGED at the time of review.
+
+Phase 2 delivered:
+
+- An independently implemented scaled dot-product attention engine.
+- An upper-triangular causal forbidden mask.
+- An auditable three-token mathematical derivation.
+- Numerical reference verification.
+- Explicit boolean and additive mask semantics.
+- Batch and optional head-dimension support.
+- Gradient and future-information-leakage checks.
+- Genuine F01/F02 evidence.
+- The Transformer-versus-RNN foundations explanation.
+- 136 passing tests, including all 54 Phase 1 tests.
+- Successful Linux CI on Python 3.11 and 3.14.
+
+Do not repeat Phase 2 implementation.
+
+Do not rewrite the existing mathematics.
+
+Zaid's personal hand-calculation review remains pending and must not be falsely marked completed.
+
+## 2. Pre-execution repository gate
+
+Before coding:
+
+1. Verify `git remote -v`.
+2. Confirm the origin is exactly the authorized Zaid repository.
+3. Confirm GitHub authentication is `zaidbinnaveed` with appropriate permissions.
+4. Check local working-tree cleanliness.
+5. Fetch remote branch references.
+6. Inspect PR #2 and confirm its reviewed head remains the expected SHA.
+7. Verify that CI on the reviewed commit remains successful.
+8. Check whether PR #2 has been merged.
+9. If it is still unmerged, request explicit authorization to merge it. Do not merge merely because Phase 3 instructions were supplied.
+10. After authorized merge, synchronize main and verify that the merged tree contains Phase 2.
+11. Create a dedicated `phase-3-multihead-position` feature branch from that verified integration point.
+
+If PR #2 changed after review or new blocking issues exist, STOP and report them before proceeding.
+
+Never force-push, rewrite main history, or bypass unresolved protection checks.
+
+Keep Phase 3 changes isolated and reviewable.
+
+## 3. Read the existing code and specifications
+
+Before choosing the Phase 3 architecture, inspect:
+
+`A1_AIE.pdf`
+
+`docs/master_instructions_v1.0.txt`
+
+`docs/assignment_requirements.md`
+
+`docs/architecture.md`
+
+`docs/phase_log.md`
+
+`docs/phase2_completion_report.md`
+
+`docs/manual_attention.md`
+
+`src/zaid_lm/config.py`
+
+`src/zaid_lm/attention.py`
+
+`src/zaid_lm/reproducibility.py`
+
+`tests/test_attention.py`
+
+`pyproject.toml`
+
+`configs/baseline.json`
+
+`README.md`
+
+The relevant academic requirements are:
+
+- Section 3, Lesson 03 — Multi-Head Attention.
+- Section 3, Lesson 04 — Positional Encoding.
+- Section 5.2 — Milestone 2.
+- Section 7 — Required multi-head and positional components.
+- Section 11 — Configurable model settings.
+- Section 12 — F03 tensor-shape evidence and F04 position visualization.
+
+Use the original assignment PDF as the authoritative requirements source.
+
+The full decoder Transformer block and MLM/CLM comparison are reserved for Phase 4.
+
+---
+
+# PART B — TECHNICAL DESIGN
+
+## 4. Phase 3 mission
+
+Extend the verified attention engine into a reusable, trainable multi-head self-attention module and independently implement sinusoidal positional encoding.
+
+By the end of Phase 3, the project must demonstrate the complete transformation:
+
+```text
+Input representations X
+        |
+        +--> W_Q --> Q --> reshape into heads
+        |
+        +--> W_K --> K --> reshape into heads
+        |
+        +--> W_V --> V --> reshape into heads
+                            |
+                            v
+                 Scaled dot-product
+                 attention per head
+                            |
+                            v
+                    Head outputs
+                            |
+                            v
+                  Concatenate heads
+                            |
+                            v
+                  Output projection
+                            |
+                            v
+                    Final output
+```
+
+Separately implement:
+
+```text
+Token representation
+        +
+Sinusoidal position representation
+        |
+        v
+Position-aware representation
+```
+
+Do not yet assemble the full Transformer block.
+
+## 5. Preserve the Phase 2 attention engine
+
+The existing public interface is:
+
+`scaled_dot_product_attention(q, k, v, *, causal=False, mask=None)`
+
+It returns:
+
+`(output, weights)`
+
+Existing shape conventions:
+
+- Q: `(..., Tq, d_k)`
+- K: `(..., Tk, d_k)`
+- V: `(..., Tk, d_v)`
+- Output: `(..., Tq, d_v)`
+- Attention weights: `(..., Tq, Tk)`
+
+The existing implementation supports identical leading batch/head dimensions, float32/float64 values, aligned causal self-attention, and mask broadcasting.
+
+Boolean mask meaning:
+
+`True = forbidden`
+
+Additive mask meaning:
+
+`0 = allowed`, `-inf = forbidden`
+
+**Reuse this exact engine inside multi-head attention.**
+
+Do not duplicate attention computations in the multi-head module.
+
+Do not substitute `nn.MultiheadAttention`, `nn.Transformer`, Hugging Face Transformer classes, or fused high-level attention operations.
+
+You may use basic PyTorch components such as `nn.Linear`, `nn.Module`, `torch.sin`, `torch.cos`, tensor reshaping and autograd.
+
+Retain all existing Phase 2 mathematical tests.
+
+---
+
+# PART C — MULTI-HEAD ATTENTION
+
+## 6. Mathematical derivation
+
+Include in the documentation the standard expression:
+
+`MultiHead(Q,K,V) = Concat(head_1, ..., head_h) W_O`
+
+where:
+
+`head_i = Attention(Q W_Q^(i), K W_K^(i), V W_V^(i))`
+
+Explain that an implementation may use three full-width linear projections followed by reshaping to obtain the per-head projections.
+
+For the initial model:
+
+`d_model = 128`
+
+`n_heads = 4`
+
+Therefore:
+
+`d_head = d_model / n_heads = 32`
+
+Define and enforce:
+
+`d_model % n_heads == 0`
+
+All dimensional assumptions must be documented and validated.
+
+For Phase 3, use equal key and value widths per head unless there is a compelling, documented reason to support more complexity.
+
+Explain why each head can learn a different projection of the same input representations.
+
+Do not claim that heads have learned linguistic relationships before training.
+
+## 7. Implement the MultiHeadSelfAttention module
+
+Create:
+
+`src/zaid_lm/multihead_attention.py`
+
+Implement a reusable PyTorch module, e.g.:
+
+`class MultiHeadSelfAttention(nn.Module)`
+
+Expected constructor concept:
+
+`__init__(d_model, n_heads, dropout=0.0, bias=True)`
+
+You may refine the signature to work naturally with the existing `ProjectConfig`.
+
+Required components:
+
+1. Independent learned Q projection.
+2. Independent learned K projection.
+3. Independent learned V projection.
+4. Explicit head splitting.
+5. Explicit dimension permutation.
+6. Per-head scaled dot-product attention.
+7. Causal mask support.
+8. Concatenation/merging of head outputs.
+9. Learned final output projection.
+10. An inspectable attention-weight return mechanism.
+
+The model must not load pretrained weights.
+
+All trainable weights must be initialized by the submitted implementation or PyTorch's standard layer initialization.
+
+### 7.1 Input contract
+
+Primary input:
+
+`X.shape = (B, T, d_model)`
+
+Validate dimensional consistency.
+
+The output should be:
+
+`Y.shape = (B, T, d_model)`
+
+Attention weights should be accessible with shape:
+
+`(B, n_heads, T, T)`
+
+A clean return contract is:
+
+`forward(x, *, causal=True, mask=None, return_attention=False)`
+
+Prefer returning a single output tensor normally and `(output, weights)` when inspection is explicitly requested.
+
+Choose one consistent interface and document it.
+
+Do not silently change interface conventions between tests and experiment scripts.
+
+### 7.2 Linear projections
+
+Compute:
+
+`Q = W_Q(X)`
+
+`K = W_K(X)`
+
+`V = W_V(X)`
+
+Each initially has shape:
+
+`(B, T, d_model)`
+
+Use separate `nn.Linear` modules.
+
+Do not share the three projection matrices by accident.
+
+### 7.3 Split into heads
+
+Transform each projection:
+
+`(B, T, d_model)`
+
+to:
+
+`(B, T, n_heads, d_head)`
+
+then permute to:
+
+`(B, n_heads, T, d_head)`
+
+Make the operation explicit in code.
+
+Do not incorrectly reshape directly into `(B, n_heads, T, d_head)` without the necessary permutation.
+
+Ensure the result preserves each token's feature grouping.
+
+### 7.4 Attention within each head
+
+Pass the reshaped Q, K and V to the verified Phase 2 function.
+
+The resulting attention output must have shape:
+
+`(B, n_heads, T, d_head)`
+
+The attention weights must have shape:
+
+`(B, n_heads, T, T)`
+
+Apply the causal masking logic from Phase 2.
+
+Do not introduce a second inconsistent causal-mask convention.
+
+Attention-score scaling must use `sqrt(d_head)`, not `sqrt(d_model)`.
+
+### 7.5 Merge heads
+
+Permute:
+
+`(B, n_heads, T, d_head)`
+
+to:
+
+`(B, T, n_heads, d_head)`
+
+Then concatenate the head features into:
+
+`(B, T, d_model)`
+
+Use a safe contiguous reshape approach.
+
+Explicitly prove that token order and head feature order remain correct.
+
+### 7.6 Final output projection
+
+Apply the output projection:
+
+`W_O: d_model -> d_model`
+
+The final output shape must be:
+
+`(B, T, d_model)`
+
+Demonstrate that the output projection is trainable and receives gradients.
+
+### 7.7 Dropout
+
+The assignment specifies configurable dropout for the future model.
+
+Implement an explicit, well-documented dropout policy.
+
+Output-projection dropout is acceptable. Attention-probability dropout may be supported only if its interaction with the existing Phase 2 engine is correctly designed.
+
+Do not modify the Phase 2 attention probability output silently.
+
+If probability dropout is implemented, clearly distinguish normalized pre-dropout attention weights from stochastic post-dropout weights; the latter need not sum to one.
+
+For deterministic mathematical demonstrations, use evaluation mode or zero dropout.
+
+Verify train/eval behavior.
+
+### 7.8 Causal correctness
+
+The final multi-head output at token t must be independent of tokens at positions greater than t.
+
+This property must hold not only for returned attention weights but for the actual final output after head merging and output projection.
+
+Write perturbation tests that modify future token representations while leaving the prefix unchanged.
+
+Check earlier outputs remain invariant within justified numerical tolerance.
+
+Check that attention weights for future positions are zero in every head.
+
+---
+
+# PART D — NUMERICAL AND SHAPE VERIFICATION
+
+## 8. Required tensor-shape trace
+
+Create:
+
+`experiments/multihead_shape_trace.py`
+
+Use the proposed baseline:
+
+`B = 2`
+
+`T = 8`
+
+`d_model = 128`
+
+`n_heads = 4`
+
+`d_head = 32`
+
+The script must print and verify:
+
+| Operation | Expected shape |
+|---|---|
+| Input X | `(2, 8, 128)` |
+| Q/K/V projections | `(2, 8, 128)` each |
+| Split head projection | `(2, 8, 4, 32)` |
+| Permuted Q/K/V | `(2, 4, 8, 32)` |
+| Per-head scores | `(2, 4, 8, 8)` |
+| Attention weights | `(2, 4, 8, 8)` |
+| Head outputs | `(2, 4, 8, 32)` |
+| Merged outputs | `(2, 8, 128)` |
+| Final output projection | `(2, 8, 128)` |
+
+If the existing attention engine does not return scores directly, compute them separately for inspection without altering the engine's production output contract.
+
+Do not claim the production engine returned an intermediate value it does not expose.
+
+For shape-tracing purposes, explicit local computation of score dimensions is acceptable.
+
+Assert every expected shape.
+
+Print a clear PASS/FAIL status.
+
+Use a fixed random seed.
+
+Do not invent a shape trace by simply printing a table of expected strings.
+
+The trace must be generated from actual runtime tensors.
+
+## 9. Independent multi-head reference
+
+Write a small independent verification example.
+
+Use small dimensions, such as:
+
+`B=1, T=3, d_model=4, n_heads=2`
+
+Compare the vectorized multi-head implementation against an explicit per-head reference calculation.
+
+Ensure the reference does not simply call the same multi-head forward function.
+
+A valid approach is to manually apply projection weights, split the results, calculate each head with the already verified scalar attention reference, concatenate, and apply the output projection independently.
+
+Numerically verify the agreement.
+
+This should prove:
+
+- Correct Q/K/V projections.
+- Correct head separation.
+- Correct per-head attention.
+- Correct head concatenation.
+- Correct output projection.
+
+Include an asymmetric, nontrivial test input to detect axis-order mistakes.
+
+## 10. Parameter-count verification
+
+Report the actual multi-head module parameter count.
+
+For four full-width linear projections with biases:
+
+`N = 4 × (d_model² + d_model)`
+
+For `d_model=128`, this gives:
+
+`N = 66,048`
+
+If the chosen architecture changes bias or projection conventions, calculate and document the corresponding count.
+
+Compare the analytical formula with:
+
+`sum(p.numel() for p in module.parameters())`
+
+Do not call this the complete GPT model parameter count.
+
+That belongs to the later architecture phase.
+
+---
+
+# PART E — SINUSOIDAL POSITIONAL ENCODING
+
+## 11. Implement positional encoding from scratch
+
+Create:
+
+`src/zaid_lm/positional_encoding.py`
+
+Implement:
+
+`class SinusoidalPositionalEncoding(nn.Module)`
+
+Use the exact sinusoidal formulation:
+
+`PE(pos, 2i) = sin(pos / 10000^(2i/d_model))`
+
+`PE(pos, 2i+1) = cos(pos / 10000^(2i/d_model))`
+
+Explain:
+
+- `pos` is the token position.
+- `i` indexes frequency pairs.
+- Even feature indices use sine.
+- Odd feature indices use cosine.
+- Different dimensions vary at different frequencies.
+- The representation depends on position rather than token identity.
+
+Do not use learned positional embeddings as the required implementation.
+
+Do not use external positional encoding packages.
+
+### 11.1 Shape requirements
+
+For an input with shape:
+
+`(B, T, d_model)`
+
+the positional encoding should be compatible with:
+
+`(1, T, d_model)`
+
+Adding it to the input must preserve:
+
+`(B, T, d_model)`
+
+Ensure sequence length does not exceed configured context length.
+
+### 11.2 Configuration
+
+Use the existing project configuration where appropriate:
+
+`d_model`
+
+`context_length`
+
+`position_encoding = "sinusoidal"`
+
+Do not change the existing character tokenizer proposal or unresolved vocabulary.
+
+The positional encoding should not depend on the number of attention heads.
+
+### 11.3 Correctness and implementation details
+
+Support at least the currently proposed even model width.
+
+If odd widths are supported, correctly handle the last unmatched frequency dimension and test it. Otherwise, explicitly validate and document the restriction instead of relying on accidental tensor-shape behavior.
+
+Ensure:
+
+- Position zero follows the sinusoidal formula.
+- Different positions produce different encoding vectors where expected.
+- The same position yields consistent values across runs.
+- Encoding does not modify the input tensor in place.
+- Device and dtype follow a documented policy.
+- Evaluation does not introduce randomness.
+- There are no trainable position parameters for the sinusoidal-only implementation.
+
+Use an appropriate registered buffer if precomputing the positional table.
+
+Ensure checkpoint and device-migration behavior is compatible with future model integration.
+
+### 11.4 Dropout policy
+
+If positional encoding includes dropout, make it configurable and test train/eval behavior.
+
+Do not use active dropout when generating mathematical evidence.
+
+Clarify whether the module:
+
+- Returns positional vectors only, or
+- Adds positional vectors to input representations.
+
+Prefer an interface that is easy to integrate into Phase 4 without duplicating the addition.
+
+### 11.5 Position offsets
+
+If a future sequence offset is supported, validate it rigorously.
+
+Do not implement speculative KV-cache functionality in this phase.
+
+A simple start-at-zero position contract is acceptable for Milestone 2, with future extensions documented.
+
+---
+
+# PART F — POSITIONAL VISUALIZATION
+
+## 12. Generate the required F04 figure
+
+Create:
+
+`experiments/visualize_positions.py`
+
+Produce:
+
+`F04_positional_encoding.png`
+
+Generate the image directly from the implemented sinusoidal position module.
+
+Use the proposed baseline:
+
+`context_length=128`
+
+`d_model=128`
+
+The visualization must meaningfully demonstrate position-dependent structure.
+
+Include:
+
+1. A heatmap of positions versus embedding dimensions.
+2. Labeled axes.
+3. A clear color scale.
+4. A title identifying sinusoidal encoding.
+5. A selected-dimensional comparison or frequency explanation where useful.
+
+Ensure the actual values come from the implementation.
+
+For the heatmap, positions should be represented on one axis and encoding dimensions on the other.
+
+Document the range of positional values, typically between -1 and 1.
+
+Do not generate random visual patterns or fabricate evidence.
+
+Use Matplotlib consistently with existing Phase 2 plotting infrastructure.
+
+Keep the plotting dependency compatible with Python 3.11 and 3.14.
+
+### 12.1 Position interpretation
+
+Explain what the visualization demonstrates.
+
+Include discussion of:
+
+- Slow versus fast changes across position.
+- Sine/cosine feature pairing.
+- How the representation makes positions distinguishable.
+- Why self-attention without explicit positional information is permutation-equivariant under the appropriate assumptions.
+- Why adding positional vectors breaks that symmetry.
+
+Avoid claiming that visualized encodings are learned or trained.
+
+### 12.2 Reproducible figure evidence
+
+Store a small reviewed evidence copy at:
+
+`report/evidence/F04_positional_encoding.png`
+
+Add a provenance receipt consistent with the Phase 2 SHA256 evidence practice.
+
+Include the exact source script and command.
+
+Do not claim it is trained-model evidence.
+
+---
+
+# PART G — MULTI-HEAD EVIDENCE F03
+
+## 13. Generate F03 tensor-shape evidence
+
+The assignment requires a real multi-head tensor-shape printout.
+
+Produce:
+
+`report/evidence/F03_multihead_shape_trace.txt`
+
+or an equally clear, justified evidence artifact.
+
+Optionally create a readable PNG from the actual executed shape trace.
+
+Required evidence:
+
+- Runtime input shape.
+- Q/K/V projection shapes.
+- Head split and permutation shapes.
+- Per-head attention weight/output shapes.
+- Merge shape.
+- Final projection shape.
+- Number of heads and head width.
+- A clear successful verification statement.
+
+Preserve actual tensor-derived values.
+
+Never fabricate terminal output or mark an unexecuted script as passed.
+
+Include the command necessary to reproduce the trace.
+
+---
+
+# PART H — AUTOMATED TESTING
+
+## 14. Multi-head attention tests
+
+Create:
+
+`tests/test_multihead_attention.py`
+
+Test at least:
+
+1. Baseline output shape.
+2. Baseline attention weight shape.
+3. Configurable head counts.
+4. Head dimension divisibility.
+5. Q/K/V projection independence.
+6. Correct head split and merge.
+7. Agreement with an independent per-head reference.
+8. Nontrivial input permutation correctness.
+9. Future-token perturbation invariance.
+10. Forbidden attention weights are zero.
+11. Output projection correctness.
+12. Parameter count.
+13. Forward/backward gradient propagation.
+14. Gradient flow to all four projection modules.
+15. Batch independence.
+16. Sequence length one.
+17. Invalid input shape handling.
+18. Incorrect embedding width.
+19. Invalid head count.
+20. Incorrect mask shape.
+21. Incompatible device/dtype behavior.
+22. Train versus evaluation dropout.
+23. Deterministic evaluation.
+24. Compatibility with the Phase 2 attention engine.
+
+Test both valid and invalid behavior.
+
+Do not merely assert that a constructor succeeds.
+
+Use carefully chosen reference values and tolerances.
+
+## 15. Positional encoding tests
+
+Create:
+
+`tests/test_positional_encoding.py`
+
+Test at least:
+
+1. Positional encoding shape.
+2. Preservation of input shape.
+3. Correct sine values at even dimensions.
+4. Correct cosine values at odd dimensions.
+5. Correct position-zero values.
+6. Different position representations.
+7. Repeated-call determinism in evaluation mode.
+8. Correct behavior with multiple batch sizes.
+9. Context-length boundary.
+10. Invalid sequence lengths.
+11. Invalid d_model values.
+12. Input mutation prevention.
+13. Device and dtype consistency.
+14. No trainable positional encoding weights.
+15. Buffer/state serialization behavior.
+16. Train/eval dropout behavior, if implemented.
+17. Correct use with the project's actual baseline settings.
+18. Numerical comparison against an independent scalar reference.
+
+Avoid making the reference depend entirely on the same implementation being tested.
+
+## 16. Integration tests
+
+Test the simple Phase 3 composition:
+
+`X + sinusoidal positions -> multi-head self-attention`
+
+This is a demonstration pipeline, not the full decoder block.
+
+Verify:
+
+- Correct shapes.
+- Finite outputs.
+- Gradient flow.
+- Causal information restriction.
+- No unexpected in-place changes.
+- Reproducibility.
+
+When checking causal behavior, perturb future **token input representations** while preserving their positional indices.
+
+Do not perturb positions in a way that changes the prefix being compared.
+
+Do not implement FFNs, residual sublayers, LayerNorm or full GPT architecture yet.
+
+Those belong to Phase 4.
+
+---
+
+# PART I — DOCUMENTATION AND REPRODUCIBILITY
+
+## 17. Explain the implementation technically
+
+Create or update:
+
+`docs/multihead_attention.md`
+
+`docs/positional_encoding.md`
+
+Include:
+
+- Core mathematical equations.
+- Shape derivations.
+- Head splitting/merging rationale.
+- Attention API reuse.
+- Parameter-count breakdown.
+- Positional encoding formulas.
+- Numerical examples.
+- Masking behavior.
+- Design decisions.
+- Limitations.
+- Validation evidence.
+- Connections to Phase 4.
+
+Use clear diagrams if they genuinely improve understanding.
+
+Make the explanations technically accurate and suitable for reuse in the future Medium article.
+
+Do not write empty or generic explanations that are disconnected from Zaid's implementation.
+
+## 18. Update requirement traceability
+
+Update:
+
+`docs/assignment_requirements.md`
+
+Mark as completed only requirements supported by actual code, tests and evidence.
+
+Relevant entries:
+
+- Lesson 03 — Multi-Head Attention.
+- Lesson 04 — Positional Encoding.
+- Milestone M2.
+- Required multi-head component.
+- Required sinusoidal position component.
+- F03 evidence.
+- F04 evidence.
+
+Keep later-phase Transformer block, trained model, dataset, loss and deployment requirements pending.
+
+Do not mark Phase 4–10 deliverables completed.
+
+## 19. Update the phase log
+
+Update:
+
+`docs/phase_log.md`
+
+Record:
+
+- Source commit.
+- New branch.
+- Exact implementation changes.
+- Shape and projection decisions.
+- Numerical-reference results.
+- Test commands.
+- Test outcomes.
+- Figure commands and artifact paths.
+- Issues encountered and resolutions.
+- CI links.
+- Remaining limitations.
+- Exact next-phase prerequisites.
+
+Create:
+
+`docs/phase3_completion_report.md`
+
+Do not claim Phase 3 completion until verification succeeds.
+
+## 20. Update README
+
+Add a Phase 3 section documenting how to:
+
+- Install necessary dependencies.
+- Execute the multi-head shape trace.
+- Generate positional visualization.
+- Run Phase 3-specific tests.
+- Run the full test suite.
+- Inspect F03/F04 evidence.
+
+Ensure commands match the actual package structure.
+
+Keep the current status clear: no complete GPT model, real training or deployed inference yet.
+
+---
+
+# PART J — QUALITY GATES
+
+## 21. Scientific correctness requirements
+
+Before marking Phase 3 as complete:
+
+- The attention calculations must use the actual per-head key dimension.
+- Q/K/V projections must be genuinely independent trainable modules.
+- Head splitting must preserve token and feature order.
+- Per-head attention must reuse the verified Phase 2 engine.
+- Merge order must be correct.
+- Output projection must receive gradients.
+- Causal masking must remain effective after all projections.
+- Sinusoidal positional encoding must match the mathematical equations.
+- Position representation must vary systematically with position.
+- F03 and F04 must come from real executed code.
+- Numerical comparisons must use trustworthy independent references.
+
+Avoid introducing unnecessary abstractions that make the architecture harder to understand.
+
+Correctness and inspectability are more important than optimization.
+
+## 22. Full automated validation
+
+Run:
+
+1. Existing Phase 1 tests.
+2. Existing Phase 2 tests.
+3. All new Phase 3 tests.
+4. Full `pytest` suite.
+5. Ruff lint checks.
+6. Ruff formatting checks.
+7. Editable-install verification.
+8. Wheel-build verification.
+9. Installed-wheel tests where practical.
+10. Shape trace execution.
+11. Positional encoding numerical verification.
+12. F03/F04 evidence generation.
+13. Evidence file existence/content inspection.
+14. `git diff --check`.
+15. Secret and prohibited-artifact audit.
+16. Documentation consistency audit.
+17. GitHub Actions verification on Python 3.11 and 3.14.
+
+Preserve the original 136 passing Phase 1/2 tests.
+
+Do not report success based solely on the number of tests.
+
+Check scientific test quality and coverage.
+
+If new code changes require modifying older tests, document why and ensure no previous requirement is weakened.
+
+## 23. Performance and engineering restrictions
+
+Do not train a language model in this phase.
+
+Do not download Tiny Shakespeare yet.
+
+Do not start GPU workloads.
+
+Do not deploy an API.
+
+Do not introduce pretrained checkpoints.
+
+Do not perform unrelated optimization experiments.
+
+A small CPU-based forward/backward test of randomly initialized modules is allowed and required for mathematical verification.
+
+Do not mistake such a test for a trained-language-model experiment.
+
+If the existing Phase 2 attention function performs tensor-value checks that impose execution overhead, document that limitation. Do not prematurely replace the engine with an opaque optimized alternative.
+
+Performance tuning belongs to a later, separately justified step.
+
+---
+
+# PART K — PUBLICATION AND REPORT
+
+## 24. Git workflow
+
+After completing and verifying Phase 3:
+
+1. Review the changes in the dedicated Phase 3 branch.
+2. Confirm only legitimate Phase 3 files were changed.
+3. Run the complete test suite.
+4. Commit the verified implementation.
+5. Push to Zaid's authorized repository.
+6. Open a Phase 3 pull request against main.
+7. Wait for GitHub CI to finish.
+8. Address failures if any.
+9. Report the final commit, test results and PR link.
+
+Do not merge Phase 3 without separate authorization.
+
+Do not modify another person's repository.
+
+## 25. Mandatory completion report
+
+Return a detailed Phase 3 completion report containing:
+
+**A. Repository integrity**
+
+- Authorized repository.
+- Actual authenticated GitHub account.
+- Local workspace.
+- Phase 2 integration receipt.
+- Phase 3 starting commit.
+- Feature branch and final commit.
+- Confirmation no unrelated project assets were reused.
+
+**B. Implementation details**
+
+- Complete changed-file inventory.
+- Multi-head module API.
+- Q/K/V projection shapes.
+- Split and merge operations.
+- Output projection shape.
+- Parameter-count formula and actual count.
+- Causal masking behavior.
+- Dropout and train/eval contract.
+- Sinusoidal encoding formula and implementation.
+- Positional encoding shape and offset policy.
+
+**C. Numerical validation**
+
+- Actual runtime tensor-shape trace.
+- Independent per-head comparison results.
+- Numerical errors/tolerances.
+- Gradient verification.
+- Future-token invariance evidence.
+- Independent sinusoidal encoding reference results.
+
+**D. Evidence**
+
+- F03 artifact and command.
+- F04 artifact and command.
+- Provenance and hashes.
+- Description of exactly what each artifact proves.
+- Remaining future evidence requirements.
+
+**E. Engineering verification**
+
+- Actual number of passing tests.
+- Any failing/skipped tests.
+- Ruff status.
+- Package-build status.
+- Installed-package test status.
+- CI results for Python 3.11 and 3.14.
+- Git/security audit.
+- Unresolved risks.
+
+**F. Next steps**
+
+- Exact remaining assignment requirements.
+- Any blocking deficiencies.
+- Recommended Phase 4 integration plan.
+- PR URL.
+
+## 26. Final stop instruction
+
+**EXECUTE PHASE 3 ONLY.**
+
+Do not proceed into Phase 4.
+
+Do not construct the full decoder Transformer block.
+
+Do not implement the GPT language-model training pipeline.
+
+Do not train on the corpus.
+
+Do not create fake trained-model outputs.
+
+Do not begin ablation studies.
+
+Do not build or deploy the inference API.
+
+Do not publish the Medium article.
+
+After completing and validating:
+
+- Multi-head attention
+- Head split/merge
+- Per-head numerical verification
+- Sinusoidal positional encoding
+- F03/F04 evidence
+- Full test suite
+- Documentation and PR
+
+**STOP. WAIT FOR EXPLICIT PHASE 4 APPROVAL.**
+
+The next authorized milestone, after independent review, will be:
+
+**Phase 4 — Complete Transformer Decoder Block, Model Architecture, and MLM versus CLM Objective Comparison.**

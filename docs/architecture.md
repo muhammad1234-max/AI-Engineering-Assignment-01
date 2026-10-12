@@ -34,11 +34,20 @@ malformed JSON, blank paths, vocabulary mismatch and excessive sequence length f
 
 ## Planned implementation boundaries
 
-Future modules in the same package: `attention.py` (Phase 2), `positions.py` and
-multi-head attention (Phase 3), `transformer_block.py`/`gpt.py` (Phase 4),
+Implemented modules in the same package: `attention.py` (Phase 2),
+`positional_encoding.py` and `multihead_attention.py` (Phase 3). Future modules:
+`transformer_block.py`/`gpt.py` (Phase 4),
 `tokenizer.py`/`dataset.py`/`train.py`/`checkpoint.py` (Phase 5), `generate.py`
 (Phase 6 foundations / Phase 8 CLI). Experiments/API/notebooks share this one engine.
 Proposed pre-LN organization must be finalized and justified in Phase 4.
+
+Phase 3 uses independent full-width Q/K/V linears, explicit reshape then permutation,
+the unchanged Phase 2 engine at 32-wide keys, contiguous head merge, output linear
+and output-only dropout. Its biased baseline module has 66,048 parameters, not the
+complete GPT count. Fixed sinusoidal vectors are a persistent buffer added before
+attention; positive integer offsets are bounded by context. Both modules use explicit
+float32/64 dtype/device matching. See their dedicated docs and actual F03/F04 receipts.
+Only position-plus-attention composition exists; future block structure remains a plan.
 
 Checkpoint plan: atomic writes; own state dict, full config, fitted tokenizer,
 optimizer, step, RNG states, source commit, dataset hash/split, software/hardware

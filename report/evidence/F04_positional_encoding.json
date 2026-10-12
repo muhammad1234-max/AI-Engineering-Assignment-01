@@ -1,0 +1,33 @@
+{
+  "artifact": "report/evidence/F04_positional_encoding.png",
+  "sha256": "f56321ea799afca8612c816d2f79fa5984ffcea269c882337669597c5769ef04",
+  "bytes": 313423,
+  "source_sha256": {
+    "experiments/visualize_positions.py": "da32d27796b6be4a813c62afa72fdf5843ceacefbe9e35013f2ad15d19bdf7c5",
+    "experiments/phase3_evidence.py": "5a2cf25e3b76a55104e849dffa4180e5a77ad6afe9f10300ab912b274de1ce18",
+    "src/zaid_lm/positional_encoding.py": "0070519193c00a420cc3b532c0b8ef1b195415c878b24c5e5a0397518eed8876",
+    "src/zaid_lm/config.py": "465b64ae005a34683f40a072b7e579eac46e68f44d4eea0abbcffa918949ab0d"
+  },
+  "details": {
+    "command": "python -m experiments.visualize_positions",
+    "kind": "fixed positional encoding, not trained-model evidence",
+    "shape": [
+      128,
+      128
+    ],
+    "errors": {
+      "torch.float32": {
+        "max_absolute_error": 2.979937197000737e-08,
+        "atol": 1e-06
+      },
+      "torch.float64": {
+        "max_absolute_error": 4.440892098500626e-16,
+        "atol": 1e-12
+      }
+    },
+    "range": [
+      -1.0,
+      1.0
+    ]
+  }
+}

@@ -6,7 +6,8 @@ All 11 pages were text-extracted and visually reviewed, including diagrams, tabl
 rubric, links and checklist. Source PDF unchanged and not republished in this repository.
 
 Instruction sources: historical root `instructions.txt` (Phase 1 handoff), the current
-Desktop Phase 2 handoff preserved in `docs/phase2_instructions.txt`, and Downloads
+Desktop Phase 2 handoff preserved in `docs/phase2_instructions.txt`, current Phase 3
+handoff preserved in `docs/phase3_instructions.txt`, and Downloads
 `instructions (1).txt` (independent master,
 labeled Version 1.0). The handoff names master Version 1.1, but that version label was
 not found in supplied independent master. Record this discrepancy without inventing
@@ -14,7 +15,9 @@ missing text. The older Downloads `instructions.txt` is revoked and was not used
 implementation. Phase 0 incident materials remain untouched outside this project.
 Explicit Phase 1 and Phase 2 authorizations supersede their preceding phase stops.
 The PDF is authoritative for academic requirements. Phase 2 authorization permits
-merging reviewed PR1, publishing PR2 and then stopping; it does not authorize PR2 merge.
+merging reviewed PR1, publishing PR2 and then stopping. The separate explicit
+authorization "Authorize the merge and complete Phase 3" permits merging reviewed
+PR2 at bf9df03 and completing Phase 3; Phase 3 PR merge/Phase 4 remain unauthorized.
 
 Owner for engineering rows: Zaid, assisted by Codex; human submission/understanding
 rows: Zaid/team. Paths below are **planned destinations unless marked VERIFIED**.
@@ -49,13 +52,13 @@ is recorded separately in `docs/phase_log.md`.
 | A04 | p1 team | Team size 2-3; recommendation | 9 team documentation | Zaid confirms actual members/roles | `report/team.md` | HUMAN_ACTION |
 | L01 | p2 §2; p3 §3 lesson01; p4 §5.1 | Sequential vs parallel depth; hand analysis and reasoned/measured speed-memory comparison; mandatory | 2 `docs/why_transformers.md` | Review recurrence vs training parallelism and autoregressive limits | `docs/why_transformers.md`: recurrence, teacher forcing, complexity table and bounded MAC counts (reasoned, not benchmarked) | VERIFIED |
 | L02 | p2 §2; p3 lesson02; p4 §5.1 | Q/K/V scaled attention, mask, worked example + own implementation + unit test; mandatory | 2 `attention.py` | Independent arithmetic/reference; shapes/row sums/gradients | Core and typed worked example verified by scalar reference/tests; personal review H07 pending; `docs/manual_attention.md`, `tests/test_attention.py` | IN_PROGRESS |
-| L03 | p2 §2; p3 lesson03; p4 §5.2 | Multi-head per-head attention, explicit split/concat/projection, trace and actual output; mandatory | 3 multi-head module | Shape trace/reference/split-merge tests | F03, `tests/test_multihead.py` | NOT_STARTED |
-| L04 | p2 §2; p3 lesson04; p4 §5.2 | Order information, own sinusoidal encoding, plot and explanation; mandatory | 3 `positions.py` | Formula/determinism/dtype/device/offset tests | F04, article foundations | NOT_STARTED |
+| L03 | p2 §2; p3 lesson03; p4 §5.2 | Multi-head per-head attention, explicit split/concat/projection, trace and actual output; mandatory | 3 `multihead_attention.py` | Executed shape trace, independent scalar projections/heads/output, sentinel split/merge tests | F03, `tests/test_multihead_attention.py`, `docs/multihead_attention.md` | VERIFIED |
+| L04 | p2 §2; p3 lesson04; p4 §5.2 | Order information, own sinusoidal encoding, plot and explanation; mandatory | 3 `positional_encoding.py` | Independent scalar sin/cos; state/dtype/device/offset/permutation tests | F04, `tests/test_positional_encoding.py`, `docs/positional_encoding.md` | VERIFIED |
 | L05 | p2 §2; p3 lesson05; p4 §5.3 | Full decoder block, FFN/residual/normalization, diagram and shape checks; mandatory | 4 `transformer_block.py` | End-to-end shapes/gradients/residual/future-invariance | architecture figure, `tests/test_shapes.py` | NOT_STARTED |
 | L06 | p2 §2; p3 lesson06; p4 §5.3 | MLM/BERT vs CLM/GPT visibility/objectives, matrices + short comparison experiment; mandatory | 4 `experiments/objective_comparison.py` | Controlled toy comparison; no full BERT claim | `outputs/figures/mlm_clm.png`, article | NOT_STARTED |
 | L07 | p2 §2; p3 lesson07; p4 §5.4 | GPT causal mask, shifted targets, next-token loss, training curves/generation; mandatory | 4-6 dataset/gpt/train | Target/mask tests; real recorded learning | F06/F08, train logs | NOT_STARTED |
 | M01 | p4 §5 / M1 | Numerical attention and passing attention tests; mandatory | 2 | L01/L02 + H01-H07 gate | Phase 2 engineering verified; academic gate awaits Zaid H01-H07 review; `docs/phase2_completion_report.md` | IN_PROGRESS |
-| M02 | p4 §5 / M2 | Shape-verified attention and position visualization; mandatory | 3 | L03/L04 gate | Phase 3 log, F03/F04 | NOT_STARTED |
+| M02 | p4 §5 / M2 | Shape-verified attention and position visualization; mandatory | 3 | L03/L04 gate | Phase 3 completion report, executed F03/F04 and tests | VERIFIED |
 | M03 | p4 §5 / M3 | Complete decoder block and MLM/CLM mask comparison; mandatory | 4 | L05/L06 gate | Phase 4 log, architecture/F05 | NOT_STARTED |
 | M04 | p4 §5 / M4 | Tiny-subset loss decreases before long training; mandatory | 5 | T03 overfit debugging gate | Real before/after debug log | NOT_STARTED |
 | M05 | p4 §5 / M5; §5.5 | Full corpus train/evaluate/generate; mandatory | 6 | T05-T08 with approved run | Own checkpoint and run manifest | NOT_STARTED |
@@ -79,9 +82,9 @@ is recorded separately in `docs/phase_log.md`.
 | --- | --- | --- | --- | --- | --- | --- |
 | I01 | p5 §7 tokenizer | Deterministic tokenizer, actual vocab and special-token policy; mandatory | 5 `tokenizer.py` | Train-only fitting; roundtrip/unknown policy tests | `data/provenance.json`, tokenizer metadata | NOT_STARTED |
 | I02 | p5 §7 embedding | Token IDs to d_model embedding; mandatory | 4 `gpt.py` | Shape/vocabulary bounds/gradients | `tests/test_gpt.py`, F05 | NOT_STARTED |
-| I03 | p5 §7 position | Own sinusoidal positional encoding; mandatory | 3 `positions.py` | Formula + changing representation check | F04, position tests | NOT_STARTED |
-| I04 | p5 §7 attention | Q/K/V projection, scaling/softmax/optional mask; mandatory | 2-3 attention modules | Manual/reference/finite-gradient tests | Pure scaled attention/softmax/masks verified in `src/zaid_lm/attention.py`; learned Q/K/V projections await Phase 3 | IN_PROGRESS |
-| I05 | p5 §7 multi-head | Configurable heads, explicit split/merge; mandatory | 3 attention module | Per-head computation and projection shape checks | F03, tests | NOT_STARTED |
+| I03 | p5 §7 position | Own sinusoidal positional encoding; mandatory | 3 `positional_encoding.py` | Formula + changing representation check | F04, position tests, persistent zero-parameter buffer | VERIFIED |
+| I04 | p5 §7 attention | Q/K/V projection, scaling/softmax/optional mask; mandatory | 2-3 attention modules | Manual/reference/finite-gradient tests | Unchanged Phase 2 engine plus independent learned projections, per-head scalar reference and gradients | VERIFIED |
+| I05 | p5 §7 multi-head | Configurable heads, explicit split/merge; mandatory | 3 `multihead_attention.py` | Per-head computation and projection shape checks | F03, head-count/sentinel/scalar/causality tests | VERIFIED |
 | I06 | p5 §7 FFN | Two linear transforms + nonlinearity; mandatory; GELU recommended | 4 block module | Shape/nonlinearity/gradient tests | block diagram/source | NOT_STARTED |
 | I07 | p5 §7 normalization | LayerNorm or justified equivalent; mandatory | 4 block module | Numerical/shape/architecture checks | article implementation | NOT_STARTED |
 | I08 | p5 §7 residuals | Residuals around attention and FFN; mandatory | 4 block module | Sublayer bypass/gradient tests | diagram/tests | NOT_STARTED |
@@ -130,8 +133,8 @@ is recorded separately in `docs/phase_log.md`.
 | --- | --- | --- | --- | --- | --- | --- |
 | F01 | p7 §12 figure1 | Hand-calculated attention | 2 manual derivation | Every H01-H07 step; human review + independent check | Generated verified typed summary: `report/evidence/F01_manual_attention.png` + hash receipt; Zaid personal review pending | IN_PROGRESS |
 | F02 | p7 §12 figure2 | Causal mask blocks future | 2 mask visualization | Exact mask agrees with implementation/tests | Implementation-generated 3/8-token structural masks: `report/evidence/F02_causal_mask.png` + hash receipt; not trained F07 | VERIFIED |
-| F03 | p7 §12 figure3 | Actual multi-head shape printout | 3 trace | Genuine invocation, split/head/merge/output dimensions | `outputs/figures/F03_multihead_shapes.png` | NOT_STARTED |
-| F04 | p7 §12 figure4 | Systematic positional representations | 3 sinusoidal plot | Labeled formula/source/dimensions | `outputs/figures/F04_positions.png` | NOT_STARTED |
+| F03 | p7 §12 figure3 | Actual multi-head shape printout | 3 trace | Executed tensor shapes, scalar comparison, gradients and causality; text is the required readable printout | `report/evidence/F03_multihead_shape_trace.txt` + source/content receipt | VERIFIED |
+| F04 | p7 §12 figure4 | Systematic positional representations | 3 sinusoidal plot | Labeled baseline heatmap/frequency curves from numerically verified implementation | `report/evidence/F04_positional_encoding.png` + source/content receipt | VERIFIED |
 | F05 | p7 §12 figure5 | Actual model summary/parameter count | 4 model summary | Programmatic real parameter breakdown | `outputs/figures/F05_model_summary.png` | NOT_STARTED |
 | F06 | p8 §12 figure6 | Real train vs validation curve | 6 approved training | Plot actual logs with step/axes/run identity | `outputs/figures/F06_loss.png` | NOT_STARTED |
 | F07 | p8 §12 figure7 | Attention from real trained checkpoint | 6 inspection | Checkpoint/layer/head/token labels and causal weights | `outputs/figures/F07_trained_attention.png` | NOT_STARTED |
@@ -160,8 +163,8 @@ variants alone do not substitute for three controlled training comparisons.
 | Rubric (pp8-9 §14) | Weight | Mapped requirements | Current status |
 | --- | --- | --- | --- |
 | Conceptual understanding | 15% | L01-L07/H01-H07 | NOT_STARTED |
-| Attention implementation | 15% | L02/L03/I04/I05/I09 | NOT_STARTED |
-| Transformer architecture | 15% | L04/L05/I02-I10 | NOT_STARTED |
+| Attention implementation | 15% | L02/L03/I04/I05/I09; engineered attention verified, human/full-model gates pending | IN_PROGRESS |
+| Transformer architecture | 15% | L04/L05/I02-I10; positions verified, complete decoder pending | IN_PROGRESS |
 | Language-modeling pipeline | 15% | L07/I01/I11/T01-T06 | NOT_STARTED |
 | Experiments and analysis | 15% | E01-E05 | NOT_STARTED |
 | Generation/evaluation | 10% | I12/T07/T08 | NOT_STARTED |
@@ -218,8 +221,8 @@ not merely the existence of this plan.
 | README setup commands work | D04/V01/V07 | Fresh final command receipt | IN_PROGRESS |
 | Hand-calculated attention included | H01-H07/F01 | Typed derivation independently verified; personal review pending | IN_PROGRESS |
 | Causal mask shown | I09/F02 | Structural mask/tests verified; full model integration pending | IN_PROGRESS |
-| Multi-head shape trace | L03/F03 | Actual trace | NOT_STARTED |
-| Positional encoding evidence | L04/F04 | Own sinusoidal figure | NOT_STARTED |
+| Multi-head shape trace | L03/F03 | Actual F03 execution printout and receipt | VERIFIED |
+| Positional encoding evidence | L04/F04 | Own F04 formula-verified sinusoidal figure | VERIFIED |
 | Model architecture diagram | L05 | Real architecture figure | NOT_STARTED |
 | Train/validation curves | T02/F06 | Real full training logs/plot | NOT_STARTED |
 | At least five generation samples | T07/F08 | Five fixed-prompt own outputs | NOT_STARTED |
@@ -270,8 +273,10 @@ See `docs/phase2_completion_report.md`, `docs/phase_log.md`, and
 
 H01-H06/F01 remain IN_PROGRESS at the academic submission level because human
 arithmetic review is not evidenced. Their engineering artifacts are complete as above.
-I04 lacks learned projections (Phase 3); I09 lacks full-model integration (Phase 4).
+I04's learned projections are now verified in Phase 3; I09 still lacks full-model
+integration (Phase 4), although final multi-head prefix invariance is verified.
 M01's engineering work is complete; its human understanding gate remains open.
-F03-F10, later milestones and final acceptance remain pending. Next authorized scope
-requires separate approval: Phase 3 learned multi-head attention, explicit head
-splitting/merging, sinusoidal positions and genuine F03/F04.
+F03/F04 and M2 are now verified by Phase 3 code/tests/evidence; F05-F10, later
+milestones and final acceptance remain pending. See `docs/phase3_completion_report.md`.
+Next scope requires separate approval: Phase 4 decoder block/GPT architecture and
+MLM versus CLM comparison. No full-model, trained result or human attestation is complete.

@@ -87,3 +87,23 @@ artifact, personal attestation or trained semantic result is fabricated. F01/F02
 original programmatic figures from the scripts, with content/source SHA256 receipts.
 Zaid's personal review remains required. PDF curriculum code and any unrelated
 assignment checkout were not consulted or copied in this phase.
+
+## Phase 3 reviewed sources and independent work
+
+* The 11-page original assignment PDF remains authoritative, particularly lessons
+  03/04, M2, component/configuration tables and F03/F04. Its bytes are unchanged.
+  Current Desktop instructions are preserved exactly in `phase3_instructions.txt`.
+* [Vaswani et al., Attention Is All You Need, §3.2.2 and §3.5](https://arxiv.org/html/1706.03762v7)
+  supplies multi-head and sinusoidal equations. No model source or paper performance
+  result was copied. These educational modules have not been language-model trained.
+* [PyTorch 2.10 Module.register_buffer](https://docs.pytorch.org/docs/2.10/generated/torch.nn.Module.html#torch.nn.Module.register_buffer)
+  documents persistent state/device behavior. Basic Linear, Dropout, tensor operations
+  and autograd are used; high-level/fused attention classes are not called.
+
+Module code, fixed asymmetric example matrices, Python-loop projection/head/output
+oracle, full scalar sinusoidal verification, tests, runtime trace and F04 plotting
+are original work in this repository. The scalar attention oracle is the existing
+independently verified Phase 2 project oracle; the production engine is unchanged.
+No external code template or unrelated assignment artifact was used. F03/F04 receipts
+identify exact source/artifact bytes, commands and mathematical rather than trained
+evidence. Zaid's personal hand-calculation review remains pending.
