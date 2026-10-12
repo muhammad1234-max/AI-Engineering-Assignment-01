@@ -1,6 +1,6 @@
 # Phase 1 completion report
 
-Local foundation verified; remote publication receipt to be appended after execution.
+**Phase 1 COMPLETE.** Local foundation verified and published as an open reviewable PR.
 Full assignment remains pending. This report and phase_log contain only actual Phase 1
 work and explicit future plans; no model/training/deployment/experiment completion claim.
 
@@ -49,7 +49,11 @@ work and explicit future plans; no model/training/deployment/experiment completi
 14. **Blockers:** no local Phase 1 blocker. Master version label mismatch (handoff refers1.1,
     independent master supplied is1.0) documented. Future dataset rights/legacy-script access,
     real hardware/budgets/storage/hosting/accounts/human tasks need their proper phase review.
-15. **Commit/PR:** publication receipt appended once actual; no merge permitted.
+15. **Commit/PR:** implementation commit
+    `8b7b88c250fccd3045757673521d4415402f00f1` pushed to `phase-1-foundation`;
+    https://github.com/zaidbinnaveed/AI-Engineering-Assignment-01/pull/1 open against main.
+    Source main unchanged. A separate documentation receipt commit records publication;
+    current final tip is the PR's head / `git rev-parse HEAD`. No merge performed.
 16. **Next exact scope:** Phase 2 manual dk=dv=2 three-token Q/K/V through scores/scaling/
     softmax/weighted values/masked scores and visibility; Zaid reviews arithmetic; own general
     scaled-attention/causal-mask code with correctness/shape/row-sum/gradient/future tests,
@@ -102,3 +106,13 @@ Source byte hashes:
 * Independent master v1.0: `ab678735a312f4a6868312f9301149a7ad2f5cf4e78d7767b4a36edca6db9329`.
 
 **STOPPED - WAITING FOR EXPLICIT PHASE 2 APPROVAL.**
+
+Final publication verification: remote main remained
+`1ba89cba2aa04c355bedd16b70b3e07f1818553e`; PR owner/base/head correct and state OPEN.
+Push CI on implementation commit **SUCCESS**, both Linux Python 3.11 and 3.14:
+https://github.com/zaidbinnaveed/AI-Engineering-Assignment-01/actions/runs/38255520775.
+The precommit 34-file index audit passed, maximum size44,429 bytes and zero findings;
+eight Python files passed lint/format and cached diff check passed. Full source and
+instruction-copy inventories inspected; no scientific artifacts reused. Actual new
+documentation-tip CI result is checked separately at completion, never inferred from
+the initial implementation run.

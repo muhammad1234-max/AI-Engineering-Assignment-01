@@ -236,14 +236,14 @@ class presentation D08, and team understanding AT01. Final submission remains pe
 
 | Item | Destination | Actual verification required | Status |
 | --- | --- | --- | --- |
-| Correct repo/account/push access and preserved main | Git/phase log | pwd/root/origin/account/permissions/fetch/PR | IN_PROGRESS |
+| Correct repo/account/push access and preserved main | Git/phase log | pwd/root/origin/account/permissions/fetch/PR; actual feature push and open PR1 | VERIFIED |
 | Isolated foundation, no unrelated artifacts | Package/docs | Tracked source review, no copied scientific artifacts | VERIFIED |
 | Supported Python, explicit dependencies, virtual env | pyproject/requirements | Real pip installation/check/build/import | VERIFIED |
 | Strict config and CLI parsing | `config.py`, `cli.py` | Positive/type/range/enum/divisibility/file/override tests | VERIFIED |
 | Deterministic CPU seed path | `reproducibility.py` | Python/NumPy/torch repeats; no CUDA touched | VERIFIED |
 | Structure/README/milestone dependencies | README/architecture | Paths tests and actual documented command execution | VERIFIED |
-| Minimal CI, lint/format | Workflow/ruff | Actual local receipts; CI status separately | IN_PROGRESS |
-| Security/Git and reviewable publication | ignore/phase log/PR | Diff check, staged sizes/secrets/ignores; commit/push/PR | IN_PROGRESS |
+| Minimal CI, lint/format | Workflow/ruff | Local checks and Linux 3.11/3.14 push CI38255520775 SUCCESS on implementation commit | VERIFIED |
+| Security/Git and reviewable publication | ignore/phase log/PR | Diff/index/ignore/manual review passed; feature commit pushed, PR1 open | VERIFIED |
 
 Risk priorities: missing verified model/math (15% attention + 15% architecture),
 compute approval for real training/experiments (30% pipeline/analysis), then working
