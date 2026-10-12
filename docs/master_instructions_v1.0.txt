@@ -1,0 +1,238 @@
+ZAID'S AI ENGINEERING ASSIGNMENT #01 — CODEX MASTER INSTRUCTIONS
+Version 1.0 | Source of truth: A1_AIE.pdf (11 pages), supplied specifically as ZAID'S assignment
+
+READ THIS ENTIRE FILE BEFORE DOING ANYTHING. THIS IS A NEW, SEPARATE ASSIGNMENT.
+
+================================================================================
+0. NON-NEGOTIABLE IDENTITY, SAFETY, AND PHASE-GATING RULES
+================================================================================
+
+PROJECT OWNER: ZAID. The user has expressly identified the attached A1_AIE.pdf as ZAID'S assignment. The correct GitHub account, remote, local workspace, deployment account, Google Drive, Colab runtime, and team membership MUST BE VERIFIED with the user; none is inferred from previous conversations or another repository.
+
+CRITICAL PROHIBITION: NEVER use, clone, copy, push to, import from, cite as this project's measurements, or otherwise treat `rayyan-merchant/Nano-Language-Model` as ZAID'S work. It belongs to a different assignment/person. Do not assume any earlier E01–E14 models, checkpoints, study settings, measured results, trained samples, scripts, reports, or experiment outcomes belong to Zaid. Do not transfer them into this project. Do not reuse the previous erroneous instructions.txt; this file replaces it in full. Do not delete or modify that unrelated repository. If Codex's working tree points there, STOP, report the mismatch, and wait for Zaid's correct workspace/repository instructions.
+
+NO SELF-AUTHORIZED REPO CREATION OR MIGRATION. Do not create a GitHub repository, fork, push, merge, delete, reset, force-push, change remotes, change organization visibility, invite collaborators, deploy, publish a Medium article, spend money, or launch substantive GPU training without explicit user approval. A successfully authenticated GitHub connector is NOT evidence that an account belongs to Zaid. Verify owner and remote with Git commands AND obtain the user's confirmation.
+
+SINGLE-PHASE EXECUTION: Complete Phase 0 first. At the END of every phase: (a) show completed tasks and real evidence, (b) list changed files and actual commands/tests/results, (c) update a traceability matrix, (d) identify blockers and risks, and (e) STOP and request explicit user permission to start the NEXT phase. Do not advance automatically, even if later phases look straightforward. Inside each phase, work in the numbered order and use the specified acceptance gates. Never start all phases at once. If a phase contains expensive/cloud/external actions, get additional action-specific consent before those actions.
+
+PRIMARY SOURCE: The uploaded A1_AIE.pdf, 11 pages, is the authoritative assignment specification. Inspect it yourself (actual pages, text, tables and diagrams). Distinguish: MANDATORY; recommended starting configuration; optional extra credit; examples; human-only submission actions. Do not treat recommended numbers as compulsory and do not invent a deadline or rubric requirement. The instructions below translate its Sections 1–20 into concrete work; resolve any discrepancy in favor of the actual PDF, and flag it to the user.
+
+ACADEMIC INTEGRITY: This is a teaching assignment; every major component must be explainable by Zaid and team members. Do not use a pretrained GPT/GPT-2/Llama/Mistral/BERT or other pretrained LM checkpoint for the core model. Do not use Hugging Face AutoModelForCausalLM, GPT2LMHeadModel or equivalent black-box complete architectures. PyTorch tensor operations, modules, autograd, LayerNorm, optimizers and GPU; and tokenizer libraries are permissible. Do not fabricate experiments, figures, runtime, hashes, deployment URLs, publication, screenshots, citations or demonstrations. Quote/reference adapted third-party materials appropriately. Do not upload confidential/private datasets or secrets. Never disclose or commit credentials.
+
+NO IMPLICIT TRAINING PERMISSION. Smoke tests and tiny overfit tests are permitted only within an explicitly approved implementation phase, with clear limits and local/device safeguards. Full-corpus GPU experiments need advance approval specifying configuration, budget, runtime, account and artifact persistence. Any future extensions, additional ablation variants or seeds require approval.
+
+RECOVERY FROM PRIOR INCORRECT CODEX INSTRUCTIONS: In Phase 0, inventory changes made after the previous instructions were read. Preserve evidence. Do not delete or roll back files/commits until approved. If any unrelated source, checkpoint, measurement, file, remote, citation or account was involved, isolate it and report the precise contamination. Do not claim clean independence without an audit.
+
+================================================================================
+1. ASSIGNMENT MISSION AND COMPLETE REQUIREMENTS MAP (PDF SECTIONS 1–20)
+================================================================================
+
+MISSION (p.1–2): From an authorized Tiny Shakespeare corpus, implement YOUR OWN compact decoder-only causal Transformer/GPT-style language model; tokenize -> construct shifted training examples -> embed tokens and positions -> causal attention blocks -> vocab logits -> next-token prediction -> prompt-conditioned autoregressive generation. Build, train, inspect, evaluate and expose. Small model and correctness/understanding matter more than scale. Clean-checkout reproducibility is essential.
+
+COVER ALL SEVEN CONCEPT LESSONS (p.2–3):
+[LESSON-01] Why Transformers: sequential versus parallel depth, RNN sequential recurrence versus parallelizable Transformer training, and time/memory trade-offs; include concrete reasoned or measured comparison, not unsupported claims of universal speed.
+[LESSON-02] Self-attention: Q,K,V; unscaled/scaled QK^T; row softmax; weighted values; causal mask; independent numerical hand derivation, own implementation, shape/mask unit tests.
+[LESSON-03] Multi-head: configurable number of heads, independent projections, explicit split/reshape/transpose, per-head scores/weights, concatenation, output projection, complete symbolic and concrete tensor-shape trace and actual attention output.
+[LESSON-04] Positions: implement sinusoidal encoding BY HAND using formulas, visualizations, and why word order otherwise is ambiguous. Optional learned/RoPE approaches are extra credit, not baseline obligations.
+[LESSON-05] Full Transformer decoder: attention, FFN/MLP, LayerNorm or justified equivalent, dropout if configured, residual pathways, block architecture diagram and automated shape checks.
+[LESSON-06] MLM/BERT versus CLM/GPT: bidirectional and causal mask matrices, what each token can see, MLM masking task versus next-token targets, and a small comparison exercise/experiment. A full BERT implementation is explicitly NOT required. Compare mathematically or with a small demonstrator; never claim to have trained BERT if not done.
+[LESSON-07] GPT causal LM: strict triangular mask, shifted inputs and targets, next-token cross-entropy, actual learning curve and actual generated samples.
+
+DELIVERABLES (p.3): correct instructor-accessible/public Git repo; running GOOGLE COLAB SCRIPT/DEMO (PDF spells 'Collab'); trained model checkpoint OR fully reproducible training command AND accessible checkpoint from GitHub or shareable Google Drive; complete README including setup, dataset source, training/inference, expected output, known limitations; technical report PUBLISHED AS A MEDIUM ARTICLE (recommended 8–12 pages excluding appendix); figures/evidence; controlled ablation table and discussion; 5–10 minute screen-recorded demonstration; class-presentation material. M6 explicitly requires a FastAPI REST inference endpoint and ACTUAL online deployment/hosting (e.g. Render). Provide both CLI and API, not one in place of the other.
+
+SIX PDF MILESTONES (p.4–5): M1 numerical attention and tests; M2 multi-head/position; M3 decoder and MLM-vs-CLM; M4 data/training/tiny overfit; M5 train complete corpus, evaluate and generate; M6 ablations/inference CLI/FastAPI/deployment/report/demos. Our operational PHASES below retain this pedagogical order with additional gates.
+
+REQUIRED HAND CALCULATION (p.5, Section 6): Report a complete independent numeric attention example for THREE TOKENS with d_k=2 and d_v=2. Declare literal 3x2 Q, K and V; calculate QK^T (3x3) entry by entry; scale each score by sqrt(2); calculate each row's softmax including exp terms and denominators; multiply 3x3 attention by 3x2 V to produce 3x2 context; build the exact upper-triangular causal mask (negative infinity for j>i); show masked score matrix, masked weights, and (recommended) masked output by hand; explain position 1 sees 1, position 2 sees 1–2, position 3 sees 1–3. Use simple integer values, enough precision, cross-check in a SEPARATE tiny test, and explicitly label manual math separately from PyTorch verification. Include result as readable equations/tables and screenshot evidence. Do not pass mere library outputs off as hand calculations; Zaid/team members must review/understand the derivation.
+
+MINIMUM IMPLEMENTATION (p.5, Section 7): deterministic char/subword tokenizer with vocab size, train-only fitting and special-token policy; token embedding to d_model; own sinusoidal position encoding; Q/K/V scaled attention + optional mask; configurable multi-head attention with explicit split/merge; two-linear-layer FFN with nonlinearity (GELU recommended); LayerNorm or justification; residuals around attention and FFN; strict causal masking; LM projection to vocab logits; token-level cross-entropy on next-token shifted targets; max-length/temperature autoregressive sampling (top-k/p optional). Demonstrate every component with code + tests and shape logs.
+
+RULES (p.5–6, Section 8): no pretrained LM checkpoints/black-box high-level Transformer implementations. PyTorch elementary math/modules/autograd/optimizer allowed; tokenizer library permissible when explained; adapted code and sources cited. No credentials/dataset rights violations. Runs must be reproducible.
+
+DATA (p.6, Section 9): Tiny Shakespeare is the specified corpus, with Hugging Face source referenced. Fetch a legitimate accessible official/reliable source, record URL/dataset version, exact file hash/size, permissions, any format conversion, preprocessing, split policy, leaks/duplicates/normalization, tokenizer training policy; use the SAME corpus/splits/tokenizer definitions in comparisons. The PDF describes ~1.11 MB / ~40,000 lines as background; verify actual properties rather than claiming them sight unseen. Keep train/validation/test disjoint, and do not use held-out test for choosing hyperparameters.
+
+STRUCTURE (p.6–7, Section 10): suggested transformer-gpt-assignment/ layout: README, dependency file, configs, data, src tokenizer/dataset/attention/positional_encoding/transformer_block/gpt/train/generate/utils, tests attention/mask/shapes/overfit, experiments attention_visualization/ablation/evaluate, outputs figures/logs/samples, checkpoints, report. An alternative clean package structure is allowed IF README maps every component/deliverable. Add API/, notebooks/, docs/ and scripts/ if useful. No assumption that a particular directory already exists.
+
+CONFIG (p.7, Section 11): expose configurable vocab_size (from tokenizer), context_length (suggestion 128), d_model (128 or 256 suggested), n_heads (4 suggested), n_layers (4 suggested), ffn_dim (4*d_model suggested), dropout (0.0–0.1 suggested), optimizer (AdamW suggested), LR (~3e-4), batch size (resource-limited), sampling temperature (0.8 example). Document/justify actual values; check divisibility d_model % n_heads == 0. Hardware may warrant smaller model with written justification. These values are RECOMMENDATIONS, not fixed outputs.
+
+TEN EVIDENCE FIGURES (p.7–8, Section 12): Although a summary says 'at least 6', Section 12 enumerates TEN; target ALL TEN so nothing is omitted. [F01] genuine manual attention calculation; [F02] causal mask matrix/heatmap; [F03] actual multi-head tensor shape printout; [F04] sinusoidal position visualization; [F05] model summary/real parameter count; [F06] actual train versus validation loss chart; [F07] attention heatmap from a REAL TRAINED checkpoint, not a random untrained model; [F08] genuine final generated samples; [F09] ablation result table/chart with measured values; [F10] CLI or API live inference evidence. ADD model architecture diagram, MLM-vs-CLM comparison/diagram and hosted API/Colab evidence. Capture reproducible commands, source commit, model/checkpoint identity where appropriate, and truthful screenshots, with high-quality labels and citations. PDF's mock example output is illustrative ONLY; never present its '3.2M' or generated string as real measurements.
+
+ABLATIONS (p.8, Section 13): At least THREE controlled experiments, one major factor varied per comparison with other conditions as stable as feasible. Suggested: DEPTH 2/4/6 blocks (measure val loss, params, training time); HEADS 2/4/8 (val loss and generation quality); CONTEXT 64/128/256 (val loss, memory, throughput). Optional additional position sinusoidal/learned and decoding greedy/temperature (latter inference settings are not separate training experiments). Plan baseline and controlled variants carefully, clarify how many actual training jobs the user approves, record per-variant costs/compute/data exposure, use same split/evaluation, repeated seeds only with permission, and never fabricate all suggested variants if only partial budgets were authorized. Report observation versus interpretation separately. The interpretation cannot attribute improvements to a confounded change.
+
+RUBRIC (p.8–9, Section 14): Conceptual understanding 15%; attention implementation 15%; architecture 15%; modeling/training/checkpoint pipeline 15%; controlled experiments/analysis 15%; generation/evaluation 10%; software engineering 10%; report/demo 5%. Maintain a rubric-level progress table and prioritized risk register.
+
+REPORT (p.9, Section 15): 1 problem/scenario; 2 foundations/math/tensor shapes; 3 implementation/tokenizer/config/attention/mask/training; 4 source/preprocess/split/vocab/context/filtering; 5 hardware/hyperparameters/optimizer/batch/steps/checkpoints; 6 genuine results/plots/samples/params/runtime/attention; 7 ablations and careful interpretation; 8 AT LEAST TWO genuinely observed failure modes/limitations with likely causes and fixes/remaining issues; 9 packaging/CLI/FastAPI deployment/reproducibility; 10 conclusions. Include bibliography, source adaptation disclosures, supplementary hand work and all figures. Prepare Medium-compatible article and optional PDF/local report backup; article publication needs human/account authorization.
+
+ACCEPTANCE (p.9, Section 16): From a CLEAN environment/container: install dependencies; pass tests; pass tiny repeated-batch overfit (substantial loss decrease); load FINAL checkpoint in fresh process; actually generate from THREE FIXED prompts; causality/future-invariance tests; execute README commands as written; check no secrets/large assets accidentally committed; note exact versions and exceptions. Unit tests must pass without manual edits, and all CLI/API demos must use trained own weights.
+
+DEMO (p.10, Section 17): Prepare and rehearse nine items: repo/core source, attention/mask, tests, parameter count, loss curve, generation, trained attention heatmap, live deployed inference, best ablation + limitation. PDF additionally requires 5–10 minute RECORDED DEMO (Section 4), while Section 17 offers a 5–7 minute demo script; aim for 5–7 minutes within overall 5–10 window. Produce scripts/storyboards and evidence; recording/speaking/uploading is a real human action unless separately supported, not simulated.
+
+ATTRIBUTION (p.10, Section 18): team members understand/explain own code; references for adapted resources; rights to data; model generation is not factually reliable; large binaries via managed artifact store.
+
+FINAL CHECKLIST (p.10, Section 19): repo owner/access, actual README execution, manual example, mask, shape trace, position figure, architecture diagram, train/val curves, >=5 genuine fixed-prompt generations, >=3 controlled ablations, actual final params/config, CLI/API, Medium article, no secrets/unnecessary binaries, all references. Also explicitly check Colab, checkpoint retrieval, deployed FastAPI, ten numbered figures, at least two failure modes, demo recording and presentation to cover earlier sections.
+
+REFERENCES (p.11, Section 20): Cite actual original works/library documentation and Tiny Shakespeare dataset, not the PDF's generic 'Open resource' labels as if they were live URLs. Verify any linked resources before including. Add clear 'adapted from' attribution.
+
+================================================================================
+2. REQUIRED WORKFLOW AND REPO SAFETY
+================================================================================
+
+A. At startup, print 'ZAID ASSIGNMENT ISOLATION CHECK' and show pwd, git rev-parse --show-toplevel, git remote -v, branch, HEAD, git status, authenticated account identity IF securely available, and PDF location. Verify exact repo against explicit user confirmation. If there is NO Zaid-confirmed repository, STOP and ask for the correct GitHub owner/repo or authorization to create one. You may inspect current LOCAL files read-only, but do not create/push anything.
+B. Inspect any current local files from prior bot work without trusting them. Produce changed-file and remote-action incident inventory, and a quarantine plan for unrelated artifacts. Do not delete or copy another person's work.
+C. Honor existing local modifications and branch protections. Before approved modifications, use a new working branch inside Zaid's verified repository or a safely isolated working directory. Never force-push or rewrite history.
+D. Build traceability file docs/assignment_requirements.md after approval: ID, PDF page/section, exact criterion, classification, implementation path, test/evidence path, owner, status [NOT_STARTED/IN_PROGRESS/BLOCKED/VERIFIED], actual verification note. Never label a requirement VERIFIED based only on planned work, mock code or unexecuted tests.
+E. Build docs/phase_log.md (for approved phase) recording timestamp, repository/commit, commands, tests, results, blockers, approvals and next-phase STOP. Phase summaries must be concise yet complete.
+F. Protect .env, tokens, Drive auth, Kaggle/Colab credentials, deployment provider tokens, licensed/private content. Use sample .env.example without real secrets. Keep data/checkpoints out of Git unless instructor specifically requests them and size/privacy permit.
+G. Use test-driven implementation: write focused unit tests or explicit acceptance checks before claiming each module complete. Tests should cover actual correctness, not just successful imports.
+H. Avoid spending paid API/GPU/cloud credits or starting deployments without owner approval and cost estimate. Free-tier deployment may sleep; document behavior rather than hiding it.
+I. Build native code, not a wrapper around an existing pretrained model or someone else's previous assignment.
+
+================================================================================
+3. PHASE 0 — IDENTITY, INCIDENT AUDIT, PDF TRACEABILITY (READ-ONLY)
+================================================================================
+
+STEP 0.1 Re-read all eleven PDF pages. Create an internal outline by section/page, separating mandatory, recommended and optional. Surface ambiguities (e.g., >=6 figures summary vs 10 figure table; 5–10 recording vs 5–7 suggested script; experiment count and budget).
+STEP 0.2 Determine current working directory, git owner/remotes/account, repository history, local files, README, PDF. DO NOT assume repo owner. Ask the user to confirm that the exact account and repo are ZAID'S. Do not initialize Git or change remotes.
+STEP 0.3 Audit earlier incorrect instructions and any actions Codex already performed. Report all file changes, new commits/branches, pushes, PRs, uploads, jobs and deployments; identify contamination from non-Zaid projects. Preserve evidence and make a reversible cleanup proposal, not an automatic rollback.
+STEP 0.4 Compare available files against Section 1 map. For each requirement state VERIFIED, PRESENT_UNVERIFIED, MISSING, BLOCKED, or HUMAN_ACTION with supporting file references or why evidence is absent. Do not claim an external repository or private resource is connected unless actually inspected and authorized.
+STEP 0.5 Design standalone Zaid architecture and work tree independent of prior unrelated artifacts; propose model/corpus/compute plans and explain the minimum reproducible training budget and alternatives. Do not freeze unapproved hyperparameters yet.
+STEP 0.6 Produce a detailed phased plan with dependency order, success criteria and decisions/credentials/access that only Zaid can authorize. Flag public publishing, paid costs and ownership issues. No code modifications in Phase 0.
+END PHASE 0: Show read-only audit, candidate repository URL(s), confirmation question and proposed Phase 1 actions. STOP. WAIT FOR EXPLICIT USER APPROVAL.
+
+================================================================================
+4. PHASE 1 — AUTHORIZE REPO, CLEAN FOUNDATION AND TEST INFRASTRUCTURE
+================================================================================
+
+PRECONDITION: user explicitly confirms Zaid's repository or separately approves a newly created repository, and Phase 1 itself.
+STEP 1.1 Verify permissions and safe branch workflow; isolate/or correct any previous contaminated files ONLY with approval, preserve audit record. Ensure no unrelated model/artifacts are imported.
+STEP 1.2 Create tidy independent package/repo structure (Section 10) using Python/PyTorch, separate configuration, reproducible dependency pins, env.example, gitignore, README skeleton, Makefile/scripts as useful, tests, experiments, docs/evidence, api, notebooks, report, checkpoints placeholder. Do not rely on assumed layout.
+STEP 1.3 Implement strict config schema/validation for vocab, context, d_model, heads, layers, FFN expansion, dropout, optimizer, LR, batch, train steps, temperature, device, seed, output path. Provide actual config and rationale; make user's choices clear. Reject shape or context mismatch.
+STEP 1.4 Set up pytest, CI if authorized, deterministic seed controls, CPU-only no-GPU smoke path, optional device-aware CUDA path and explicit logging. Record environment and provenance.
+STEP 1.5 Document plan for data licensing, dataset access, save/reload, clean-checkout commands, API hosting and project milestones. Prepare safe reproducibility script that does not launch full training by default.
+STEP 1.6 Execute installation and basic skeleton smoke tests. Show all actual results, never fake. Do not start real model training.
+END PHASE 1: Demonstrate verified Zaid remote, clean independent project, pinned/setup-tested environment, config test evidence; STOP and request Phase 2 approval.
+
+================================================================================
+5. PHASE 2 — M1 HAND ATTENTION AND GENERAL ATTENTION ENGINE
+================================================================================
+
+STEP 2.1 Explain sequential depth vs RNN and Transformer computation, teacher-ready time/memory trade-off; don't claim benchmark numbers without benchmark.
+STEP 2.2 Select a hand-computable 3-token, dk=dv=2 explicit example; calculate each of seven Section 6 requirements BY HAND on paper/report derivation, include intermediate matrices, approximations, masked scores, softmax, resulting weighted sum and causal visibility explanation; check arithmetic manually and with independent code. Include exact source math in report-ready artifact; team must attest understanding.
+STEP 2.3 Implement from-scratch numerical attention function using allowed PyTorch primitives. Handle batched shapes, scaling, optional causal bool/additive masks, -inf masking, stable softmax and attention-return option, shape failures and finite outputs. Document orientation of masks and indexing.
+STEP 2.4 Tests: manual reference match within tolerance, uniform/easy known case, shape mismatch rejection, row sums, forbidden future weights zero, causal future-invariance, gradients finite, CPU device correctness, pathological padding/all-masked rows either safely handled or explicitly rejected.
+STEP 2.5 Save Figure F01 worked numeric example and Figure F02 exact mask matrix/heatmap with genuine source and caption; record output shapes and code invocation.
+END PHASE 2: numerical derivation + passing attention/correctness tests + genuine figures. STOP.
+
+================================================================================
+6. PHASE 3 — M2 MULTI-HEAD ATTENTION AND SINUSOIDAL POSITIONS
+================================================================================
+
+STEP 3.1 Write explicit Q,K,V linear projections, reshape and transpose (B,T,D) -> (B,H,T,Dh), per-head attention (B,H,T,T), weighted values (B,H,T,Dh), merge (B,T,D) and output projection (B,T,D). Dh=D/H, H config validated. Show shape trace with concrete example; demonstrate each head has separate trainable projection subspaces, not just one copied attention output.
+STEP 3.2 Implement sinusoidal positional encoding from sine/cosine at even/odd channels, correct offsets/shape/dtype/device, safe positions max context, correct order/addition to token embedding. Make a labeled heatmap or line plot with explanations. Ensure no inadvertent learned position parameter in mandatory sinusoidal mode.
+STEP 3.3 Verify attention math vs manual per-head reference, split/merge reversibility, output shapes, future-invariance, gradients, positional deterministic properties and positional impact on embeddings. Document mask broadcast semantics across batch and heads.
+STEP 3.4 Produce F03 shape trace screenshot/printout, F04 sinusoidal visualization, and model-level block diagram draft. Optional learned/RoPE extras not necessary and must not delay required work.
+END PHASE 3: working shape-tested MHA + sinusoidal positions + two evidence figures. STOP.
+
+================================================================================
+7. PHASE 4 — M3 CAUSAL TRANSFORMER BLOCK AND MLM/CLM CONCEPT DEMO
+================================================================================
+
+STEP 4.1 Implement full own decoder block with LayerNorm, multi-head causal attention, attention residual, two-layer MLP/nonlinearity and MLP residual, configured dropout and an explicitly named pre-LN/post-LN decision. Tests for every tensor shape, residual behavior, gradient flow, true future-token exclusion.
+STEP 4.2 Implement GPT model assembly: token embeddings, sinusoidal positions, N blocks, final normalization if architecture demands, vocab projection, loss on target. Calculate trainable parameter count programmatically and explain breakdown. Weight tying is optional; do not introduce without documenting.
+STEP 4.3 Build BERT-style bidirectional visibility illustration and masked-token objective example vs GPT triangular visibility and next-token shift. Show actual matrices and small token-sequence comparison; note the educational scope does not require training a BERT network. Cite objective distinctions and limitations of demonstration.
+STEP 4.4 Implement end-to-end forward tests for batch/context/logits/loss, mask privacy via future-token perturbation, shape/error guards, training/eval dropout semantics and serialized config. Produce block architecture diagram and correct F05 model/parameter summary.
+END PHASE 4: own validated Transformer code, diagram, parameter breakdown, MLM/CLM comparison; STOP.
+
+================================================================================
+8. PHASE 5 — M4 DATA PREPARATION, TRAINING ENGINE, TINY OVERFIT
+================================================================================
+
+STEP 5.1 Obtain and verify Tiny Shakespeare using approved legitimate data source; record true source URL/version/hash/content size/license and local preprocessing provenance. Document deterministic corpus splits without leakage and ensure training-only tokenizer fitting, reversible encode/decode for valid source, vocab policy and contextual windows. Decide character-level versus subword with clear rationale and manageable hardware cost.
+STEP 5.2 Implement next-token (x=tokens[i:i+T], y=tokens[i+1:i+T+1]) fixed-context construction, non-crossing train/validation windows, seed-controlled shuffle/batching; test off-by-one shift with toy sequences.
+STEP 5.3 Implement training loop with AdamW/configurable optimizer and LR, epoch/update logging, train + validation cross-entropy, perplexity when appropriate, batch counts, runtime, save/reload, RNG resume, device and dtype handling, best checkpoint criterion and sample generation hooks. Track model param count, GPU/CPU hardware, real elapsed time; report actual exceptions. Avoid leaking validation into training.
+STEP 5.4 Before substantive training execute a deliberately tiny repeated-batch overfit gate. Train small model/small sample until substantially lower loss; show real initial/final values; stop if it fails and investigate mask/shift/gradient/optimizer bugs. This is a DEBUG CHECK, not an ablation result.
+STEP 5.5 Implement deterministic checkpoint naming and atomic save, config, tokenizer, optimizer and model state, safe reload and compatibility. Test fresh-process checkpoint load and same-input inference; include metadata provenance and safe handling of trusted weights.
+STEP 5.6 Plot pilot loss curves and record tiny-overfit evidence; do not mislabel it as full data result. Verify negative tests for unknown vocab, dataset mismatch and no future-token leakage.
+END PHASE 5: validated data pipeline, actual successful tiny-overfit test, reliable saving/loading and measured smoke evidence. STOP and request approval for real GPU training before Phase 6.
+
+================================================================================
+9. PHASE 6 — M5 TRAIN A GENUINE COMPACT GPT MODEL
+================================================================================
+
+PRECONDITION: user approves exact run, Colab or GPU account, GPU usage time/cost, hyperparameters, storage path and expected artifact sizes; any platform connection/authorization belongs to Zaid and is verified. Do NOT use unrelated Kaggle accounts or past study artifacts.
+STEP 6.1 Freeze baseline experiment config, deterministic seed, pre/postprocessing and validation policy, checkpoint/export frequency, expected computational budget and safe persistent storage. Run short actual CUDA qualification if available; do not fall back silently to CPU for a long run.
+STEP 6.2 Start genuine new-from-scratch training on Tiny Shakespeare. Log each step/epoch, training and validation loss, learning rate, actual hardware, wall-clock training time, samples during evaluation, gradient problems, dtype, checkpoint names, interruption/resume lineage. Avoid altering research budget mid-run without approval.
+STEP 6.3 Select checkpoint on validation ONLY, preserve distinct best/final, record final params/config/seed/actual training time and genuine final train/val loss and perplexity where meaningful.
+STEP 6.4 Generate AT LEAST FIVE actual continuations from FIVE fixed predeclared prompts, with user-configured length and temperature 0.8 baseline demonstration. Preserve prompts, generation settings, RNG seeds, authentic outputs and bad outputs too; no post-editing samples or external LLM for completion.
+STEP 6.5 Implement instrumented trained-model attention inspection: access softmax maps at specified layers/heads, correctly align token labels and causal mask, generate F07 real trained-model attention heatmap; contrast it with untrained/synthetic attention only if clearly labeled. Produce F06 training/validation curves and F08 genuine generations.
+STEP 6.6 Persist a trusted checkpoint via Zaid-authorized accessible Google Drive or approved versioned release destination; verify independent retrieval, hash/size/metadata and fresh checkpoint inference. Provide a documented command to load it. Do not commit large weights by default.
+END PHASE 6: genuine checkpoint, full evidence of from-scratch run, clean reload, five authentic samples, trained attention figure and reproducible model retrieval. STOP.
+
+================================================================================
+10. PHASE 7 — M6 CONTROLLED ABLATIONS AND SCIENTIFIC ANALYSIS
+================================================================================
+
+PRECONDITION: distinct approved run matrix/budget/account/storage; no automatic bulk GPU jobs.
+STEP 7.1 Define baseline and at least THREE controlled factor comparisons with user-approved run list. Strong assignment-aligned plan (budget permitting): depth (2/4/6 layers), heads (2/4/8), context (64/128/256). Reuse the baseline if it matches selected central settings. For each comparison change only one major factor; document unavoidable parameter/FLOP/context differences and training-token/time matching policies.
+STEP 7.2 Freeze common dataset/hash, tokenizer, splits, eval text/mode, optimizer schedule, precision, generation prompts/sampling seeds and checkpoints before comparing. Prevent overfitting to validation by iterative tuning; reserve test until model selection. Where context differs, score a common held-out portion with documented conditioning boundary and track context/exposure confounds.
+STEP 7.3 Execute ONLY approved variants one at a time; give each a unique run ID and training-source commit; checkpoint and store independently. Report genuine per-run val loss, params, training time; heads also generation quality; context memory + throughput. Track failures/partial runs rather than dropping or fabricating.
+STEP 7.4 Report numeric matched-comparison tables/charts with confidence limitations and a simple statement for every comparison: HYPOTHESIS -> CONTROL -> OBSERVATION -> INTERPRETATION -> LIMITATIONS. A sample-based quality claim is descriptive, not statistical proof. Comparisons of different tokenizer token losses require common-text byte metrics, not naive perplexity ranking.
+STEP 7.5 Provide F09 real ablation result table/chart. Also compare greedy vs temperature decoding as optional inference diagnostic; DO NOT count sampling variants as three independent training experiments. If full suggested grids are too costly, ask approval for a lower-cost legitimate design and explicitly mark any unrun value as unavailable.
+END PHASE 7: >=3 genuine approved controlled experiment comparisons plus measured table, interpretations and honest incomplete-run status. STOP.
+
+================================================================================
+11. PHASE 8 — CLI INFERENCE, FASTAPI, PUBLIC DEPLOYMENT AND COLAB
+================================================================================
+
+STEP 8.1 Build usable CLI loading ZAID'S trained own checkpoint + fitted tokenizer, not a pretrained model. Parse --prompt, --max-new-tokens, --temperature and --seed, optionally --device/--checkpoint, validate ranges, handle Unicode and exact context truncation and show model identity/config. Verify from clean shell and capture F10 terminal inference screenshot.
+STEP 8.2 Build small FastAPI service using trained OWN model, e.g., GET /health and POST /generate with typed request/response, reproducible local uvicorn launch, model loaded ONCE at startup, resource limits (prompt length/max new tokens/request concurrency), error responses, no request logging of sensitive data by default, CORS controls, provenance and optional API key only if appropriate (securely managed). Include sample curl/PowerShell requests and tests (including malicious/empty/overlong inputs). Avoid substituting a remote model API.
+STEP 8.3 Package and deploy to Zaid-approved online host, e.g., Render; estimate size, RAM/CPU model latency, free-tier availability and checkpoint access. Do not start external deployment without express consent and credentials. Actually verify a successful live HTTP /health and /generate response against the running hosted model, with timestamps/link/screenshot. A local-only API does not satisfy 'host/deploy online.' If hosting blocks, report BLOCKED, not completed.
+STEP 8.4 Deliver complete GOOGLE COLAB NOTEBOOK with install, authorized dataset retrieval, model/tokenizer artifact acquisition, model inspection, parameter count, checkpoint inference, fixed generation prompts and at least one demonstrable visualization/test. Use notebook paths portable to fresh runtimes; do not silently rely on private mounted local files. Clearly distinguish lightweight demo from reproducible train-from-scratch. Execute or validate on real Colab when authorized; report what actually ran.
+STEP 8.5 Document hosted endpoint usage, deployment cost/expiry risks, fresh model retrieval, exact CLI/API/Colab invocation and troubleshooting. Capture F10 live/inference output as truthful evidence; keep endpoint and access controls within user-authorized permissions.
+END PHASE 8: tested CLI/API, verified live online endpoint, authorized accessible Colab demo, reproducibility notes; STOP.
+
+================================================================================
+12. PHASE 9 — TECHNICAL REPORT, MEDIUM ARTICLE, PRESENTATION AND DEMO
+================================================================================
+
+STEP 9.1 Compose technically rigorous, attribution-compliant ten-section report matching PDF Section 15; include human-reviewed derivation, all Lesson 1–7 concepts, equations and shapes, data/architecture diagrams, dataset/corpus ethics and model limitation context. Include all TEN evidence figures F01–F10 with captions and actual evidence provenance; cite actual original sources. Figure screenshots must prove results actually came from Zaid's code.
+STEP 9.2 Add documented two or more observed failure modes/limitations with genuine symptoms, evidence, likely mechanism and response (e.g., repeated loops, malformed words, overfitting, context limits, GPU interruptions, deployment cold starts)—do not fabricate failures merely to tick a box. Separate actual limitations from possible risks.
+STEP 9.3 Prepare Medium-compatible article (recommended 8–12 pages of equivalent content excluding appendix). Include a local archival Markdown and optional PDF for submission, bibliography and evidence figure mapping. User authorizes account publication and reviews final draft first. NEVER claim Medium article is published based solely on a local MD file.
+STEP 9.4 Prepare class presentation slides with source-code architecture, one manually worked attention slide, MHA shape trace, positional heatmap, GPT/BERT mask objective, train/val curves, genuine generation, trained attention visualization, three ablation highlights, limitations, API and citations. Check all slides are grounded and legible.
+STEP 9.5 Produce 5–7-minute speaking/demo script within required 5–10-minute recording: show repo/core code, causal attention, tests, actual config/parameter count, real curves, CLI generation, trained attention heatmap, LIVE hosted inference, one ablation result + limitation. Include walkthrough timestamps, exact commands, fallback if live service sleeps, and clear team-member roles. Recording, speaking and publishing must be done by human team members or explicitly authorized supported tools; do not forge a recording or claim completion until actual video exists and is verified.
+STEP 9.6 Prepare final submission links/access, instructor-readable README, citations and attribution appendix. Ask Zaid to verify authorship/understanding and team presentation requirements.
+END PHASE 9: review-ready article/presentation/script; accurately label unperformed external publication/recording as BLOCKED/HUMAN_ACTION; STOP before publishing/uploading.
+
+================================================================================
+13. PHASE 10 — FRESH-ENVIRONMENT ACCEPTANCE, SECURITY, FINAL SUBMISSION
+================================================================================
+
+STEP 10.1 On a CLEAN clone/container or verified freshly provisioned environment, use documented installation and dataset/checkpoint retrieval. Record shell, OS/Python/torch/CPU/GPU and all exact commands. Check README commands verbatim without undocumented steps.
+STEP 10.2 Run full pytest; preserve test receipt. Execute independent tiny-batch overfit and record substantial loss decrease. Validate trained final checkpoint by fresh-process load and generate three predeclared fixed prompts. Test future-token invariance and masked attention zero probabilities. Check error handling, shape logging, and no unauthorized pretrained models.
+STEP 10.3 Execute complete actual CLI, local FastAPI tests, online hosted /health and /generate, and Colab demonstration as applicable. Verify real outputs and capture timestamped context evidence. Do not use mock/sample outputs to imply live availability.
+STEP 10.4 Security: git tracked-file secret scans, ignore rules, license/attribution, model/dataset rights, artifact accessibility, no large accidental binary history, no private personal information in published samples/logs. Report remediation before publication.
+STEP 10.5 Conduct figure-by-figure review F01–F10; cross-check ALL Section 19 items PLUS Colab, checkpoint URI, deployed API, >=2 failure modes, Medium article, recorded 5–10-minute demo, class presentation and all references. Provide true VERIFIED/BLOCKED/HUMAN_ACTION statuses, with exact evidence locations.
+STEP 10.6 Only after the user authorizes final action: publish/submit the Git repo link, Medium article, accessible checkpoint, Colab notebook, recorded demo, class presentation and live API endpoint. Do not assert completion until actually verified accessible from intended audience context.
+END PHASE 10: final explicit traceability/audit report, ready-to-submit links, exact outstanding human tasks. NEVER falsely certify missing items.
+
+================================================================================
+14. REQUIRED REPORTING TEMPLATE AFTER EVERY PHASE
+================================================================================
+
+PHASE: <number/name>; STATUS: COMPLETE / PARTIAL / BLOCKED.
+ISOLATION: exact ZAID-CONFIRMED GitHub owner/repo/branch/HEAD or 'UNVERIFIED — BLOCKED'. Explicitly say whether any unrelated project reference or artifact was detected.
+AUTHORIZED SCOPE: exact permissions received and actions taken; any budget/time/cloud account.
+STEPS: each step number, status, code/evidence paths.
+CHANGES: `git status --short`, changed/added/deleted files, PR/commit URLs (if any).
+VERIFICATION: exact commands, platform, pass/fail/skip counts, example outputs, validation summaries or reason not run; no fake results.
+ARTIFACTS: actual paths/links/hashes for accessible files; do not invent platform links or verified downloads.
+TRACEABILITY: updated PDF/page/requirement matrix and rubric state, unresolved items, human actions.
+RISKS/BLOCKERS: security, ownership, storage, compute, scientific limitations, source ambiguities and decisions needed.
+NEXT: proposed smallest next phase, estimated scope and **'STOPPED — WAITING FOR USER APPROVAL'**. Never auto-continue.
+
+================================================================================
+15. FIRST CODEX RESPONSE — REQUIRED NOW
+================================================================================
+
+Reply in plain language that this is ZAID'S independent assignment and the prior unrelated `rayyan-merchant/Nano-Language-Model` instructions are revoked. Perform **PHASE 0 ONLY, read-only**. Verify the uploaded 11-page A1_AIE.pdf exists in the local workspace and identify its actual path. Inspect current local Git state and connected account; never assume linked-account identity. Ask the user to confirm Zaid's correct repository before any writes. Document existing Codex actions from the wrong instructions so safe rollback can be planned. Return a page/section-grounded requirement audit and the exact next permission needed. End with STOPPED — WAITING FOR USER APPROVAL.
+
+END OF ZAID'S INSTRUCTIONS.TXT

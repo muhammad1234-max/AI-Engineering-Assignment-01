@@ -1,0 +1,353 @@
+# ZAID'S AI ENGINEERING ASSIGNMENT #01
+## Codex Execution Instructions — Phase 1 Only
+
+### 1. Project identity — mandatory
+
+You are working exclusively on **Zaid's AI Engineering Assignment #01: Build a Small LLM from Scratch**.
+
+**Authorized GitHub repository:**
+
+https://github.com/zaidbinnaveed/AI-Engineering-Assignment-01
+
+- GitHub owner: `zaidbinnaveed`
+- Repository: `AI-Engineering-Assignment-01`
+- Default branch: `main`
+- Assignment specification: `A1_AIE.pdf`
+- Master instructions: `instructions.txt` (Version 1.1)
+
+These are the authoritative project identifiers.
+
+**CRITICAL:** An earlier instruction error incorrectly associated this assignment with `rayyan-merchant/Nano-Language-Model`.
+
+That repository belongs to a separate project and must not be used.
+
+You are expressly prohibited from copying or reusing its source code, configurations, training data artifacts, tokenizer files, checkpoints, experiment results, reports, plots, or repository history.
+
+Build Zaid's assignment independently from the supplied PDF.
+
+### 2. Read the complete master instructions
+
+Before doing anything:
+
+1. Open `instructions.txt`.
+2. Read the entire document, including every phase, implementation requirement, acceptance criterion, scientific constraint, and deliverable.
+3. Open `A1_AIE.pdf`.
+4. Read all 11 pages, including diagrams, tables, and the final submission checklist.
+5. Cross-reference the PDF against the master instructions.
+6. Treat the assignment PDF as the authoritative academic specification.
+7. If any requirement is absent from the master instructions, record it and incorporate it into the compliance plan.
+8. Do not silently weaken, omit, or reinterpret requirements.
+
+**This Phase 1 handoff supplements the exhaustive master instructions. It does not override or shorten their technical requirements.**
+
+### 3. Previous Phase 0 status
+
+Phase 0 was completed as a read-only audit.
+
+It established that the unrelated Nano-Language-Model materials were copied into a temporary inspection directory during the previous incident. Those materials are excluded from Zaid's work.
+
+The correct GitHub repository has subsequently been identified and verified.
+
+Do not repeat Phase 0 unnecessarily. Validate its findings and proceed with Phase 1.
+
+Preserve any incident evidence and do not perform unapproved deletion or cleanup.
+
+### 4. Verify GitHub identity and repository permissions
+
+Before modifying project files:
+
+1. Verify the active local working directory.
+2. Verify the Git repository root.
+3. Run `git remote -v`.
+4. Confirm that `origin` points to:
+
+   `https://github.com/zaidbinnaveed/AI-Engineering-Assignment-01.git`
+
+5. Confirm the authenticated GitHub account and effective permissions.
+6. Ensure you can create a branch and push to Zaid's repository.
+7. If write access is unavailable, stop before making changes that depend on remote publication. Report the authentication problem.
+8. Never substitute a different user's repository.
+9. Never force-push, overwrite remote history, or modify unrelated branches.
+
+The repository currently has a minimal README and should be treated as a new assignment project.
+
+### 5. Establish an isolated workspace
+
+Create or use a dedicated local directory exclusively for Zaid's assignment.
+
+Keep it separate from:
+
+- The previous Nano-Language-Model inspection checkout.
+- Other users' assignments.
+- Unrelated research repositories.
+- Any existing project containing checkpoints or experimental results from a different assignment.
+
+Inspect the repository before generating files.
+
+Preserve its existing history.
+
+Create a dedicated feature branch for Phase 1.
+
+### 6. Create the complete requirements-compliance matrix
+
+Inspect every section of the assignment and produce:
+
+`docs/assignment_requirements.md`
+
+Map the assignment to implementation tasks, tests, evidence artifacts, and final deliverables.
+
+Cover:
+
+- Why Transformers and sequential versus parallel computation.
+- Scaled dot-product self-attention.
+- Explicit Q/K/V calculations.
+- Causal masking.
+- Multi-head attention.
+- Sinusoidal positional encoding.
+- Complete decoder Transformer blocks.
+- MLM versus CLM.
+- GPT next-token prediction.
+- Tiny Shakespeare preparation.
+- Training and checkpointing.
+- Tiny-overfit debugging.
+- Model evaluation.
+- Text generation.
+- At least three controlled ablations.
+- Attention visualization.
+- CLI inference.
+- FastAPI inference.
+- Actual online API hosting.
+- Google Colab demonstration.
+- Ten evidence figures.
+- Technical Medium article.
+- Failure analysis.
+- Recorded demonstration.
+- Class presentation.
+- Clean-environment acceptance tests.
+- Academic attribution.
+- Final submission checklist.
+
+For each requirement, include its PDF page/section, implementation destination, validation method, evidence location, and current status.
+
+Do not mark requirements as completed without actual evidence.
+
+### 7. Design the independent project architecture
+
+Create a clean, understandable Python project structure.
+
+Suggested structure:
+
+```text
+AI-Engineering-Assignment-01/
+├── README.md
+├── pyproject.toml
+├── requirements.txt
+├── .gitignore
+├── configs/
+├── src/
+│   └── zaid_lm/
+├── tests/
+├── experiments/
+├── notebooks/
+├── api/
+├── docs/
+├── report/
+├── data/
+├── checkpoints/
+└── outputs/
+    ├── figures/
+    ├── logs/
+    └── samples/
+```
+
+Adapt the structure if technically justified, but preserve clear separation between implementation, experiments, evidence, reports, and deployable interfaces.
+
+Do not build a second unrelated project inside this repository.
+
+### 8. Establish reproducible development infrastructure
+
+Set up:
+
+- Supported Python version.
+- Isolated virtual environment instructions.
+- Explicit dependency declarations.
+- PyTorch-based scientific computing stack.
+- Automated tests using pytest.
+- Formatting/linting conventions where appropriate.
+- Deterministic seed configuration.
+- Reliable module imports.
+- Cross-platform paths.
+- `.gitignore` for checkpoints, datasets, caches, temporary outputs and secrets.
+- Environment-variable documentation.
+- Minimal CI verification if credentials and repository permissions permit.
+
+Do not install global packages unnecessarily.
+
+Do not introduce pretrained GPT or BERT model dependencies.
+
+PyTorch numerical operations, autograd and optimizers are permitted.
+
+### 9. Establish configurable baseline specifications
+
+Create a strict, validated configuration interface for the future model.
+
+All assignment-required values must be configurable:
+
+- Vocabulary size.
+- Context length.
+- Model dimension.
+- Attention-head count.
+- Transformer-layer count.
+- Feed-forward dimension.
+- Dropout.
+- Optimizer.
+- Learning rate.
+- Batch size.
+- Generation temperature.
+
+Use the assignment's recommended values as starting points, not as fabricated experimental findings.
+
+A reasonable proposed baseline for review is:
+
+- Character tokenizer.
+- Context length 128.
+- Model width 128.
+- Four attention heads.
+- Four Transformer layers.
+- Feed-forward dimension 512.
+- GELU activation.
+- Sinusoidal positional encoding.
+- AdamW optimizer.
+- Learning rate around 0.0003.
+- Configurable dropout between 0 and 0.1.
+- Baseline generation temperature 0.8.
+
+This baseline is a **proposal**, not authorization to execute training.
+
+Document the reasons for each choice and identify settings that must be finalized after hardware qualification.
+
+### 10. Create foundational automated tests
+
+Implement focused tests for Phase 1 infrastructure, including:
+
+- Configuration loading.
+- Invalid parameter rejection.
+- Model-width/head-count divisibility.
+- Dropout range validation.
+- Generation temperature validation.
+- Package imports.
+- CLI configuration parsing where applicable.
+- Deterministic random seed setup.
+- Repository structure and expected paths.
+
+Do not create fake tests that merely assert constants without checking real behavior.
+
+Do not implement the entire attention engine or training pipeline in this phase. Those belong to later phases.
+
+### 11. Create clear documentation
+
+Update `README.md` with:
+
+- Assignment identity and objectives.
+- Repository overview.
+- Installation instructions.
+- Verified development commands.
+- Planned architecture.
+- Current implementation status.
+- Project directory guide.
+- Future milestone roadmap.
+- Responsible-use constraints.
+- Dataset source to be used later.
+- Explicit statement that training, deployment and completed experiments are not yet claimed.
+
+Create:
+
+`docs/phase_log.md`
+
+Record the actual actions, commands, changes, tests and unresolved issues completed during Phase 1.
+
+Do not document future features as currently working.
+
+### 12. Academic integrity and scientific restrictions
+
+The assignment requires an original educational implementation.
+
+Do not:
+
+- Load pretrained GPT, GPT-2, Llama, Mistral, BERT or equivalent checkpoints.
+- Substitute high-level pretrained Transformer model classes for an independent architecture.
+- Copy another student's implementation.
+- Reuse another student's experiment results.
+- Invent validation losses, generation samples, screenshots, timing measurements or training evidence.
+- Claim a GPU execution that did not occur.
+- Publish credentials or private materials.
+- Generate purported handwritten evidence while falsely presenting it as Zaid's own manual work.
+
+The required manual attention derivation must be understandable to Zaid and reviewed against actual arithmetic during Phase 2.
+
+Keep all sources and implementation influences attributable.
+
+### 13. Verification and quality gates
+
+Before finishing Phase 1:
+
+1. Verify the Git remote points only to Zaid's repository.
+2. Inspect all files created or modified.
+3. Run package installation tests.
+4. Run the Phase 1 automated test suite.
+5. Run `git diff --check`.
+6. Verify no accidental large binaries or secrets are staged.
+7. Verify no unrelated project code or artifacts were copied.
+8. Confirm the assignment-requirement matrix covers every relevant PDF section.
+9. Confirm all future phases have clear dependencies and acceptance conditions.
+10. Verify the README commands actually work in the tested environment.
+
+Report real commands and actual outcomes.
+
+Do not claim success for unexecuted checks.
+
+### 14. GitHub workflow
+
+After completing and verifying Phase 1:
+
+1. Commit only the legitimate Phase 1 implementation files.
+2. Push to a dedicated feature branch under Zaid's verified repository.
+3. Open a reviewable pull request if authentication permits.
+4. Include a concise explanation of the architecture decisions, files, tests and remaining work.
+5. Do not merge without explicit approval.
+6. Preserve the existing main branch.
+
+If authentication or write permissions fail, stop and report the issue without substituting another GitHub destination.
+
+### 15. Required completion report
+
+Return a detailed Phase 1 completion report containing:
+
+1. Verified GitHub repository URL and owner.
+2. Authenticated GitHub identity and effective permissions.
+3. Local workspace path.
+4. Working branch and source commit.
+5. Complete files-created/modified inventory.
+6. Directory architecture and rationale.
+7. Dependency versions.
+8. Baseline configuration design.
+9. Configuration validation rules.
+10. Requirements-compliance matrix location.
+11. Actual executed test commands and results.
+12. Git checks and security verification.
+13. Remaining assignment requirements.
+14. Outstanding blockers.
+15. GitHub commit and pull-request link, if available.
+16. Exact scope proposed for Phase 2.
+
+Do not present Phase 1 as completion of the full assignment.
+
+### 16. Mandatory stop condition
+
+**EXECUTE PHASE 1 ONLY.**
+
+Do not implement Phase 2, train a model, launch GPU jobs, run ablation experiments, publish a Medium article, or deploy a service.
+
+Once Phase 1 is completed, STOP.
+
+Wait for explicit approval before proceeding with **Phase 2 — Manual Attention Derivation, Scaled Dot-Product Attention and Causal Masking**.
