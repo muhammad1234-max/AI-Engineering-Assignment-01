@@ -59,8 +59,8 @@ is recorded separately in `docs/phase_log.md`.
 | L07 | p2 §2; p3 lesson07; p4 §5.4 | GPT causal mask, shifted targets, next-token loss, training curves/generation; mandatory | 4-6 dataset/gpt/train | Target/mask tests; real recorded learning | F06/F08, train logs | NOT_STARTED |
 | M01 | p4 §5 / M1 | Numerical attention and passing attention tests; mandatory | 2 | L01/L02 + H01-H07 gate | Phase 2 engineering verified; academic gate awaits Zaid H01-H07 review; `docs/phase2_completion_report.md` | IN_PROGRESS |
 | M02 | p4 §5 / M2 | Shape-verified attention and position visualization; mandatory | 3 | L03/L04 gate | Phase 3 completion report, executed F03/F04 and tests | VERIFIED |
-| M03 | p4 §5 / M3 | Complete decoder block and MLM/CLM mask comparison; mandatory | 4 | L05/L06 gate | Phase 4 log, architecture/F05 | NOT_STARTED |
-| M04 | p4 §5 / M4 | Tiny-subset loss decreases before long training; mandatory | 5 | T03 overfit debugging gate | Real before/after debug log | NOT_STARTED |
+| M03 | p4 §5 / M3 | Complete decoder block and MLM/CLM mask comparison; mandatory | 4 | L05/L06 gate | Phase 4 log, architecture/F05, objective comparison | VERIFIED |
+| M04 | p4 §5 / M4 | Tiny-subset loss decreases before long training; mandatory | 5 | T03 overfit debugging gate | Real before/after debug log in `experiments/tiny_overfit.py`, tests | VERIFIED |
 | M05 | p4 §5 / M5; §5.5 | Full corpus train/evaluate/generate; mandatory | 6 | T05-T08 with approved run | Own checkpoint and run manifest | NOT_STARTED |
 | M06 | p4 §5 / M6; p5 §5.6 | Ablation, inference CLI, REST API hosted online, report; mandatory | 7-9 | E01-E05 + D04/D06/D09 | Real experiment/interface/report links | NOT_STARTED |
 
@@ -80,24 +80,24 @@ is recorded separately in `docs/phase_log.md`.
 
 | ID | PDF page / section | Criterion / classification | Phase / destination | Validation method | Evidence location | Status |
 | --- | --- | --- | --- | --- | --- | --- |
-| I01 | p5 §7 tokenizer | Deterministic tokenizer, actual vocab and special-token policy; mandatory | 5 `tokenizer.py` | Train-only fitting; roundtrip/unknown policy tests | `data/provenance.json`, tokenizer metadata | NOT_STARTED |
-| I02 | p5 §7 embedding | Token IDs to d_model embedding; mandatory | 4 `gpt.py` | Shape/vocabulary bounds/gradients | `tests/test_gpt.py`, F05 | NOT_STARTED |
+| I01 | p5 §7 tokenizer | Deterministic tokenizer, actual vocab and special-token policy; mandatory | 5 `tokenizer.py` | Train-only fitting; roundtrip/unknown policy tests | `data/provenance.json`, `tests/test_tokenizer.py` | VERIFIED |
+| I02 | p5 §7 embedding | Token IDs to d_model embedding; mandatory | 4 `gpt.py` | Shape/vocabulary bounds/gradients | `tests/test_gpt.py`, F05 | VERIFIED |
 | I03 | p5 §7 position | Own sinusoidal positional encoding; mandatory | 3 `positional_encoding.py` | Formula + changing representation check | F04, position tests, persistent zero-parameter buffer | VERIFIED |
 | I04 | p5 §7 attention | Q/K/V projection, scaling/softmax/optional mask; mandatory | 2-3 attention modules | Manual/reference/finite-gradient tests | Unchanged Phase 2 engine plus independent learned projections, per-head scalar reference and gradients | VERIFIED |
 | I05 | p5 §7 multi-head | Configurable heads, explicit split/merge; mandatory | 3 `multihead_attention.py` | Per-head computation and projection shape checks | F03, head-count/sentinel/scalar/causality tests | VERIFIED |
-| I06 | p5 §7 FFN | Two linear transforms + nonlinearity; mandatory; GELU recommended | 4 block module | Shape/nonlinearity/gradient tests | block diagram/source | NOT_STARTED |
-| I07 | p5 §7 normalization | LayerNorm or justified equivalent; mandatory | 4 block module | Numerical/shape/architecture checks | article implementation | NOT_STARTED |
-| I08 | p5 §7 residuals | Residuals around attention and FFN; mandatory | 4 block module | Sublayer bypass/gradient tests | diagram/tests | NOT_STARTED |
-| I09 | p5 §7 causal mask | Upper-triangular future-token exclusion or equivalent; mandatory | 2-4 attention/GPT | Forbidden probability zero; future perturbation invariance | Standalone mask, zero probabilities, future perturbation and gradients verified; full decoder/GPT integration awaits Phase 4 | IN_PROGRESS |
-| I10 | p5 §7 LM head | d_model to vocabulary logits; mandatory | 4 `gpt.py` | Logits shape/backprop | F05, GPT tests | NOT_STARTED |
-| I11 | p5 §7 loss; p4 §5.4 | Shifted targets and token cross-entropy; mandatory | 4-5 dataset/train | Off-by-one toy targets/loss reference | dataset tests/real loss logs | NOT_STARTED |
+| I06 | p5 §7 FFN | Two linear transforms + nonlinearity; mandatory; GELU recommended | 4 block module | Shape/nonlinearity/gradient tests | `src/zaid_lm/transformer_block.py`, tests | VERIFIED |
+| I07 | p5 §7 normalization | LayerNorm or justified equivalent; mandatory | 4 block module | Numerical/shape/architecture checks | `src/zaid_lm/transformer_block.py`, Pre-LN tests | VERIFIED |
+| I08 | p5 §7 residuals | Residuals around attention and FFN; mandatory | 4 block module | Sublayer bypass/gradient tests | `src/zaid_lm/transformer_block.py`, residual tests | VERIFIED |
+| I09 | p5 §7 causal mask | Upper-triangular future-token exclusion or equivalent; mandatory | 2-4 attention/GPT | Forbidden probability zero; future perturbation invariance | Full decoder/GPT integration verified, future perturbation tests pass | VERIFIED |
+| I10 | p5 §7 LM head | d_model to vocabulary logits; mandatory | 4 `gpt.py` | Logits shape/backprop | F05, GPT tests | VERIFIED |
+| I11 | p5 §7 loss; p4 §5.4 | Shifted targets and token cross-entropy; mandatory | 4-5 dataset/train | Off-by-one toy targets/loss reference | `src/zaid_lm/dataset.py`, `tests/test_dataset.py`, `tests/test_overfit.py` | VERIFIED |
 | I12 | p5 §7 generation | Autoregressive length/temperature sampling; mandatory | 6/8 `generate.py` | Fixed seed/output length/context/truncation tests | F08/F10 | NOT_STARTED |
 | S01 | pp5-6 §8 | No pretrained LM checkpoints or black-box model classes; mandatory ongoing | All phases source/dependencies | Review code, imports and artifact provenance each phase | phase audit logs | IN_PROGRESS |
 | S02 | p6 §8 allowed shortcuts | PyTorch elementary operations/autograd/optimizers allowed; explain architecture; mandatory constraint | All model modules | Review one independently implemented engine | source + oral demo | IN_PROGRESS |
 | S03 | p6 §8 | Explain tokenizer/library vocabulary and adapted sources; mandatory | 5/9 tokenizer + bibliography | Provenance and team explanation review | `docs/sources.md`, article refs | NOT_STARTED |
 | S04 | p6 §8 | Clean-checkout reproducibility, no secrets/private data/large unnecessary assets; mandatory ongoing | 1/10 setup/ignore/acceptance | Actual install/test/build/security scan; final independent run | Phase 1 receipts, final acceptance | IN_PROGRESS |
-| S05 | p6 §9 | Tiny Shakespeare from linked HF source; mandatory | 5 data preparation | Source/license/revision/download hash verification | `data/provenance.json` | NOT_STARTED |
-| S06 | p6 §9; p9 §15.4 | Report actual size/split/tokenizer/vocab/context/filtering; mandatory | 5 data pipeline | Real measurements, disjoint split tests and boundary checks | data report + article §4 | NOT_STARTED |
+| S05 | p6 §9 | Tiny Shakespeare from linked HF source; mandatory | 5 data preparation | Source/license/revision/download hash verification | `data/provenance.json` | VERIFIED |
+| S06 | p6 §9; p9 §15.4 | Report actual size/split/tokenizer/vocab/context/filtering; mandatory | 5 data pipeline | Real measurements, disjoint split tests and boundary checks | `data/provenance.json`, `docs/phase5_completion_report.md` | VERIFIED |
 | S07 | Master scientific constraint | Train-only fit; no test selection; comparable corpus/eval; mandatory project policy | 5-7/10 data/eval protocol | Freeze split hashes and selection policy; audit access | `docs/training_protocol.md` | NOT_STARTED |
 | S08 | pp6-7 §10 | Clear repo separation and README maps model/data/tests/experiments/report; mandatory | 1 package + docs | Installed imports and real expected paths; inspect README | Phase 1 test receipt | IN_PROGRESS |
 | S09 | p4 §5.2; p5 §7; p8 §13 | Learned/RoPE positions, weight tying, top-k/p, decoding/position experiments; optional extras | Only approved future scope | Separate labeled tests and actual measurements | Optional report appendix | OPTIONAL_NOT_STARTED |
@@ -135,7 +135,7 @@ is recorded separately in `docs/phase_log.md`.
 | F02 | p7 §12 figure2 | Causal mask blocks future | 2 mask visualization | Exact mask agrees with implementation/tests | Implementation-generated 3/8-token structural masks: `report/evidence/F02_causal_mask.png` + hash receipt; not trained F07 | VERIFIED |
 | F03 | p7 §12 figure3 | Actual multi-head shape printout | 3 trace | Executed tensor shapes, scalar comparison, gradients and causality; text is the required readable printout | `report/evidence/F03_multihead_shape_trace.txt` + source/content receipt | VERIFIED |
 | F04 | p7 §12 figure4 | Systematic positional representations | 3 sinusoidal plot | Labeled baseline heatmap/frequency curves from numerically verified implementation | `report/evidence/F04_positional_encoding.png` + source/content receipt | VERIFIED |
-| F05 | p7 §12 figure5 | Actual model summary/parameter count | 4 model summary | Programmatic real parameter breakdown | `outputs/figures/F05_model_summary.png` | NOT_STARTED |
+| F05 | p7 §12 figure5 | Actual model summary/parameter count | 4 model summary | Programmatic real parameter breakdown | `report/evidence/F05_model_summary.png` + SHA256 receipt (809,984 parameters) | VERIFIED |
 | F06 | p8 §12 figure6 | Real train vs validation curve | 6 approved training | Plot actual logs with step/axes/run identity | `outputs/figures/F06_loss.png` | NOT_STARTED |
 | F07 | p8 §12 figure7 | Attention from real trained checkpoint | 6 inspection | Checkpoint/layer/head/token labels and causal weights | `outputs/figures/F07_trained_attention.png` | NOT_STARTED |
 | F08 | p8 §12 figure8 | Genuine final autoregressive samples | 6 generation | Own checkpoint, prompts/settings/seeds; no edited text | `outputs/figures/F08_samples.png` | NOT_STARTED |

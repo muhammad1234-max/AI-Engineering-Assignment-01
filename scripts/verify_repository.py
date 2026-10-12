@@ -13,6 +13,11 @@ EVIDENCE_PNGS = {
     "report/evidence/F01_manual_attention.png",
     "report/evidence/F02_causal_mask.png",
     "report/evidence/F04_positional_encoding.png",
+    "report/evidence/F05_model_summary.png",
+    "report/evidence/F06_loss.png",
+    "report/evidence/F07_trained_attention.png",
+    "report/evidence/F08_samples.png",
+    "report/evidence/F09_ablations.png",
 }
 EVIDENCE_TEXT = {"report/evidence/F03_multihead_shape_trace.txt"}
 
