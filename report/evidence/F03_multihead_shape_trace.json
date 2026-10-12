@@ -1,0 +1,18 @@
+{
+  "artifact": "report/evidence/F03_multihead_shape_trace.txt",
+  "sha256": "733986d973544c163d4b48630a2bc527650f03cd4dee217cde6c2d3150510ba5",
+  "bytes": 2272,
+  "source_sha256": {
+    "experiments/multihead_shape_trace.py": "edf44fc0850d69da7359ecd42f794c26238fb6fa9255108a23edfd23216449c5",
+    "experiments/phase3_evidence.py": "5a2cf25e3b76a55104e849dffa4180e5a77ad6afe9f10300ab912b274de1ce18",
+    "experiments/attention_example.py": "02898d169623dcd5a6993cb7ed3ded5f57d8bdfb75674eb182226665b5da0f54",
+    "src/zaid_lm/multihead_attention.py": "a59f4ee113ebd3b407109ca8b310ff35b9f8f999d777b11042f9c65c505178ad",
+    "src/zaid_lm/attention.py": "e3c2402cd8d2815e23977b3645a74c722c94173d48ed68161d006b75eea8683a",
+    "src/zaid_lm/config.py": "465b64ae005a34683f40a072b7e579eac46e68f44d4eea0abbcffa918949ab0d",
+    "src/zaid_lm/reproducibility.py": "18a2e85b8c1af007f3273eeff97768fb44834db8cea88b2e8cd4386a468d5d13"
+  },
+  "details": {
+    "command": "python -m experiments.multihead_shape_trace",
+    "kind": "random initialization and fixed small mathematical reference; no model training"
+  }
+}

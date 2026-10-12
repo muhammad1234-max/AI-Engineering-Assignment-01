@@ -8,3 +8,6 @@
 instructions.txt -text
 docs/master_instructions_v1.0.txt -text
 docs/phase2_instructions.txt -text
+# Supplied Markdown hard-break spaces must remain byte-for-byte intact.
+docs/phase3_instructions.txt -text whitespace=-blank-at-eol
+report/evidence/F03_multihead_shape_trace.txt text eol=lf

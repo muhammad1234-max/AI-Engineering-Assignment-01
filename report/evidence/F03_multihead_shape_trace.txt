@@ -1,0 +1,77 @@
+F03: EXECUTED MULTI-HEAD SELF-ATTENTION TRACE
+Command: python -m experiments.multihead_shape_trace
+seed=42; CPU; float32; eval; B=2 T=8 d_model=128 n_heads=4 d_head=32
+Input X: (2, 8, 128) PASS
+Q projection: (2, 8, 128) PASS
+Q split: (2, 8, 4, 32) PASS
+Q permuted: (2, 4, 8, 32) PASS
+K projection: (2, 8, 128) PASS
+K split: (2, 8, 4, 32) PASS
+K permuted: (2, 4, 8, 32) PASS
+V projection: (2, 8, 128) PASS
+V split: (2, 8, 4, 32) PASS
+V permuted: (2, 4, 8, 32) PASS
+Per-head scores (inspection computation): (2, 4, 8, 8) PASS
+Attention weights: (2, 4, 8, 8) PASS
+Head outputs: (2, 4, 8, 32) PASS
+Merged outputs (captured projection input): (2, 8, 128) PASS
+Final output projection: (2, 8, 128) PASS
+Parameters: 66048 = 4 * (128^2 + 128); module only PASS
+Final-output future perturbation max error: 0.0; future weights zero PASS
+Projection gradient norms: {"K": 0.01168854907155037, "O": 0.07194755226373672, "Q": 0.010663215070962906, "V": 0.1009291261434555} PASS
+Independent float64 per-head scalar reference (rtol=atol=1e-12):
+{
+  "False": {
+    "output_max_absolute_error": 2.220446049250313e-16,
+    "weights_max_absolute_error": 2.220446049250313e-16,
+    "output": [
+      [
+        [
+          0.7405132583147062,
+          -1.4612545281293399,
+          1.4585882770740284,
+          4.286535558869916
+        ],
+        [
+          0.9931950305775585,
+          -0.2768247962876973,
+          1.9807922454482363,
+          2.295091352635788
+        ],
+        [
+          1.5087419480209912,
+          -0.9713278996417337,
+          1.0801978305849176,
+          3.634737009440154
+        ]
+      ]
+    ]
+  },
+  "True": {
+    "output_max_absolute_error": 8.881784197001252e-16,
+    "weights_max_absolute_error": 1.1102230246251565e-16,
+    "output": [
+      [
+        [
+          0.69,
+          -1.585,
+          1.475,
+          4.284999999999999
+        ],
+        [
+          0.07146324454516512,
+          -0.29075771812665363,
+          2.171671141339737,
+          2.4650322586342175
+        ],
+        [
+          1.5087419480209912,
+          -0.9713278996417337,
+          1.0801978305849176,
+          3.634737009440154
+        ]
+      ]
+    ]
+  }
+}
+PASS: runtime shapes, head order, projections, parameter count, causal output and gradients verified.

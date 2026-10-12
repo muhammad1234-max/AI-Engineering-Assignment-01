@@ -297,3 +297,119 @@ Temporary PR body is ignored and uses actual newlines, not escaped shell text.
 
 **Phase 2 engineering COMPLETE. H07/M01 personal mathematics review pending.
 STOPPED — WAITING FOR REVIEW AND EXPLICIT PHASE 3 AUTHORIZATION.**
+
+## Phase 3 — explicit multi-head attention and sinusoidal positions (2026-10-12)
+
+Re-read the current Desktop instructions in full and all specified predecessor
+files/master/PDF before choosing architecture. The original PDF is unchanged;
+11-page text and cached relevant page renders were inspected. Current handoff copied
+byte-for-byte to `docs/phase3_instructions.txt`, SHA256
+`e958c332c59ddc7ddfea8906d2c9514eee70839feace5f8aa9cc26126c9bc217`.
+
+Gate: clean worktree; exact authorized origin; actual GitHub account `zaidbinnaveed`
+with appropriate permissions; remote refs fetched; PR2 OPEN/MERGEABLE at reviewed
+`bf9df03a55c16b7dc0018cd4d268c35900f4b336`, all four CI checks SUCCESS. Requested
+the separately mandated merge authorization. User explicitly replied **"Authorize
+the merge and complete Phase 3"**. Rechecked head/checks, merged via
+`gh pr merge 2 --merge --match-head-commit bf9df03...`, verified MERGED at
+`2026-10-12T14:26:59Z`. Fetched, fast-forward synchronized main and branched
+`phase-3-multihead-position` from `3b8bcd3df0c0d456694b2e6deaeaa09b6ab7b0cd`.
+Phase 2 source/tests/config/manual/evidence comparison against reviewed tree was empty.
+
+Implemented independent Q/K/V/output `nn.Linear` modules. Project `(B,T,D)`, reshape
+`(B,T,H,Dh)`, permute `(B,H,T,Dh)`, reuse the exact Phase 2 engine at sqrt(Dh),
+permute/contiguous-reshape back and project. Output-only dropout leaves returned
+normalized weights unchanged. Both dtype/device and invalid dimensions/masks are
+checked. Baseline D128/H4/Dh32 has 66,048 biased parameters; bias-free count 65,536.
+Own sin/cos formulas compute a persistent positional buffer, support even/odd widths,
+add without mutation and accept bounded integer offsets; addition dropout is explicit.
+Demonstration composition stops at positions followed by attention, with no decoder.
+
+Independent oracle uses Python-loop projections, feature slices, existing scalar
+attention, explicit concatenation and Python-loop output projection. Canonical
+float64 asymmetric example error: unmasked output/weights 2.220446049250313e-16;
+causal output 8.881784197001252e-16, weights 1.1102230246251565e-16;
+rtol=atol=1e-12. Baseline final prefix future-perturbation error 0.0, all future
+head probabilities exactly zero. All four projection weight norms are finite/nonzero;
+tests check input/all weights/biases and input gradcheck. PE's full 128x128 scalar
+reference error: float32 2.979937197000737e-08 at 1e-6 absolute tolerance; float64
+4.440892098500626e-16 at 1e-12. Position zero, pair identity, offsets, odd widths,
+state roundtrip, dtype/device migration and qualified permutation explanation verified.
+
+Actual local commands use `.venv-phase1/Scripts/python.exe`:
+
+* `-m pytest tests/test_config.py tests/test_foundation.py tests/test_attention.py -q`:
+  all original **136 passed in 98.54s** before coding. Older tests unchanged.
+* `-m pytest tests/test_multihead_attention.py tests/test_positional_encoding.py
+  tests/test_phase3_integration.py -q`: **105 passed in 44.33s**.
+* `-m experiments.multihead_shape_trace`: PASS; captured actual projections/merged
+  projection input, separately inspected head/scores, compared real forward outputs,
+  scalar references/parameter/causal/gradient checks. Text F03 saved to ignored
+  outputs/logs and reviewed tracked copy with content/source receipt.
+* `-m experiments.visualize_positions`: PASS; implementation values independently
+  verified then heatmap/curves F04 generated. Visually reviewed axes, title, scale
+  and formula. PNG is 313,423 bytes; receipt hashes sources and exact artifact bytes.
+* `-m pip install --no-build-isolation --no-deps -e .`, `-m pip check`: editable
+  install succeeds, no broken requirements. Existing dependency pins unchanged.
+* `-m build --no-isolation`: sdist and wheel built. Installed wheel with
+  `-m pip install --no-deps --force-reinstall dist/zaid_lm-0.1.0-py3-none-any.whl`;
+  import path asserted inside actual site-packages, including both new modules.
+* `-m pytest -q` against that noneditable wheel: **241 passed in 16.04s**,
+  zero failures/skips, including original 136 and all new 105 tests.
+* Ruff lint PASS; formatting check PASS, all 21 Python files formatted.
+* `git diff --check` PASS. Exact supplied instruction hashes match.
+
+Resolved issues: reran formatter after a long example-bias line; construct the fixed
+example biases directly in float64 to avoid previously rounded float32 literals.
+No scientific test failed. Documentation distinguishes fixed/untrained evidence,
+causal-mask ordering, `.double()` casting versus initial precision, and CPU-only checks.
+No old engine, mathematical derivation, reference source, F01/F02 or config was changed.
+Full inventory, artifact hashes, risks and exact remaining scope are in
+`docs/phase3_completion_report.md`. Provenance/security audit and final publication/CI
+receipts will be appended after actual execution; no pending check is called successful.
+
+Staged audit PASS: 65 tracked files, largest 313,423 bytes, zero findings; all four
+evidence artifacts and source receipts verified. Source instruction hard-break spaces
+initially triggered the newly staged diff check; preserved those exact bytes with a
+path-specific whitespace attribute. F03 text uses explicit LF checkout to preserve
+its artifact hash across platforms. Other implementation whitespace checks stay active.
+
+Phase 3 verifies L03/L04/M02/I03/I04/I05/F03/F04. H07/M01 personal arithmetic
+review remains pending; I09 full decoder integration, F05-F10 and later requirements
+remain incomplete. Tensor-value checks impose unprofiled overhead; no GPU, corpus
+download, model training, KV cache, API or article publication occurred. Next prerequisites:
+review Phase 3 PR, explicit merge authorization, explicit Phase 4 approval. Planned
+Phase 4 is decoder/GPT architecture plus controlled MLM/CLM comparison only.
+
+### Phase 3 publication and CI receipt
+
+Reviewed exactly 24 legitimate Phase 3 changed files; `git diff --cached --check`
+PASS after preserving supplied hard-break spaces. Commit
+`36d35c44fcabc718231f8b7c3795cbb4e73c7206` contains the verified implementation.
+Pushed only `phase-3-multihead-position` to the authorized origin. Opened
+https://github.com/zaidbinnaveed/AI-Engineering-Assignment-01/pull/3 against main using
+`gh pr create --repo zaidbinnaveed/AI-Engineering-Assignment-01 --base main --head
+phase-3-multihead-position --title ... --body-file tmp/phase3-pr.md`. PR body uses
+actual newlines and is ignored. PR3 remains OPEN/MERGEABLE, not merged.
+
+Push CI https://github.com/zaidbinnaveed/AI-Engineering-Assignment-01/actions/runs/38266041254
+COMPLETED SUCCESS: Python 3.11 editable **241 passed in 2.35s**, wheel **241 passed
+in 1.89s**; Python 3.14 editable **241 passed in 3.62s**, wheel **241 passed in
+2.31s**. Read actual job logs to verify counts, pip check, lint, 21-file format check,
+Git-index audit, config, all F01-F04 generators and sdist/wheel build.
+PR CI https://github.com/zaidbinnaveed/AI-Engineering-Assignment-01/actions/runs/38266150363
+COMPLETED SUCCESS on both versions at the same implementation head. All four
+checks SUCCESS; GitHub display retained old workflow label, actual new steps checked.
+
+Restored editable development install. Regenerated F03/F04 from committed sources:
+identical local content hashes and receipts, clean worktree. Documentation audit
+checks all new local links, exact inventory, supported new VERIFIED requirement IDs
+and unchanged old code/tests/manual/config. Its initial temporary regex also matched
+command-table rows; scoped it to the inventory section before final verification.
+This was an audit-script selection issue, not a source or numerical test failure.
+
+Final completion report and log are committed separately to preserve the identifiable
+verified implementation head. Final documentation-head CI and OPEN PR state are
+verified before delivery; that exact delivery SHA/results are in the final message.
+**Phase 3 engineering COMPLETE. H07/M01 personal mathematics review pending.
+STOPPED — WAITING FOR INDEPENDENT REVIEW AND EXPLICIT PHASE 4 APPROVAL.**

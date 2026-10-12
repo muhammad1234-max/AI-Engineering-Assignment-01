@@ -9,10 +9,12 @@ trained on Tiny Shakespeare, with numerical attention derivations, controlled
 experiments, and usable inference. The academic specification is `A1_AIE.pdf`
 (11 pages); its source identity is recorded in [requirements](docs/assignment_requirements.md).
 
-**Current status: Phase 2 attention engine and worked mathematics implemented.**
+**Current status: Phase 3 multi-head attention and sinusoidal positions implemented.**
 Configuration validation, CPU seed controls, configuration inspection, explicit
 scaled dot-product attention and causal masking work. Independent scalar checks,
 gradient tests and F01/F02 evidence accompany the complete typed derivation.
+Independent learned Q/K/V/output projections, explicit head split/merge and fixed
+sinusoidal position buffers now have scalar-reference tests and F03/F04 evidence.
 Zaid's personal mathematical review remains required before submission (H07/M01).
 The complete model, tokenizer, training, text generation and API remain future work.
 The configuration CLI below does not generate text or train a model.
@@ -106,6 +108,43 @@ Empty/mismatched inputs, incompatible masks, all-blocked rows, nonfinite inputs 
 overflowing scores fail explicitly. No learned projections, fused attention, dropout,
 precision conversion or device fallback. Verification is CPU only.
 
+## Phase 3 modules and evidence
+
+The installation above already includes the pinned plotting and test dependencies.
+From the repository root:
+
+```powershell
+.\.venv-phase1\Scripts\python.exe -m experiments.multihead_shape_trace
+.\.venv-phase1\Scripts\python.exe -m experiments.visualize_positions
+.\.venv-phase1\Scripts\python.exe -m pytest tests/test_multihead_attention.py tests/test_positional_encoding.py tests/test_phase3_integration.py -q
+.\.venv-phase1\Scripts\python.exe -m pytest -q
+```
+
+Linux equivalents use `.venv-phase1/bin/python`. The trace asserts real projection,
+split/permutation, per-head and merge shapes, parameter count, independent scalar
+numerics, causality and gradients. F04 checks all baseline values against scalar
+sin/cos before plotting. Inspect [F03](report/evidence/F03_multihead_shape_trace.txt)
+and [F04](report/evidence/F04_positional_encoding.png), with neighboring JSON hash
+receipts. Raw copies live in ignored `outputs/logs/` and `outputs/figures/`.
+Generated images may vary by platform fonts; receipts identify the exact stored bytes.
+
+```python
+from zaid_lm.multihead_attention import MultiHeadSelfAttention
+from zaid_lm.positional_encoding import SinusoidalPositionalEncoding
+
+positions = SinusoidalPositionalEncoding(128, 128)
+attention = MultiHeadSelfAttention(128, 4)
+y, weights = attention(positions(x), return_attention=True)  # x: (B,T,128)
+```
+
+Both modules require matching input/module float32 or float64 dtype and device.
+Position offsets are validated; causal attention defaults to True. Output dropout
+and position-addition dropout default to zero and disable in eval. Read the precise
+[multi-head contract](docs/multihead_attention.md) and
+[positional contract](docs/positional_encoding.md). This is a demonstration composition;
+the decoder block, full GPT, real training and deployed inference remain pending.
+The [Phase 3 report](docs/phase3_completion_report.md) records verification and review.
+
 ## Configuration proposal
 
 See [baseline rationale](docs/architecture.md). `configs/baseline.json` proposes:
@@ -120,17 +159,17 @@ context. Hardware qualification must finalize batch size, steps, device and budg
 
 | Location | Purpose and status |
 | --- | --- |
-| `src/zaid_lm/` | Installed package: configuration, seeds, inspection CLI, explicit attention/masks |
+| `src/zaid_lm/` | Installed configuration, seeds, inspection CLI, attention/masks, multi-head and sinusoidal positions |
 | `configs/` | Validated baseline proposal |
-| `tests/` | Preserved Phase 1 tests plus numerical/shape/mask/gradient attention tests |
+| `tests/` | Preserved 136 Phase 1/2 tests plus multi-head, position and composition tests |
 | `docs/` | Compliance matrix, architecture, source attribution, phase log and verification receipts |
-| `experiments/` | Independent attention verification and F01/F02 generators; later ablations pending |
+| `experiments/` | Independent attention/position verification and F01-F04 generators; later ablations pending |
 | `notebooks/` | Reserved for a portable, actually demonstrated Colab notebook |
 | `api/` | Reserved for future FastAPI and hosting packaging |
-| `report/evidence/` | Small F01/F02 PNGs, verification/provenance receipts; final report pending |
+| `report/evidence/` | Small F01/F02/F04 PNGs, F03 runtime text and hash receipts; final article pending |
 | `data/` | Dataset provenance plan; actual datasets ignored |
 | `checkpoints/` | Future weights and metadata, ignored |
-| `outputs/{figures,logs,samples}/` | F01/F02 generated here; logs/model samples remain future; ignored |
+| `outputs/{figures,logs,samples}/` | F01-F04 generated figures/shape log; model samples remain future; ignored |
 | `.github/workflows/ci.yml` | Minimal CPU installation, tests, formatting and build checks |
 
 Future pipeline: training-only tokenizer -> shifted batches -> token embeddings +
@@ -183,4 +222,5 @@ not guaranteed across PyTorch releases or platforms.
 
 Phase results, limitations and approval boundaries are in [phase log](docs/phase_log.md).
 The detailed Phase 2 verification/publication receipt is in
-[completion report](docs/phase2_completion_report.md). Phase 3 requires separate approval.
+[completion report](docs/phase2_completion_report.md). Phase 3's report is linked above.
+Phase 3 PR merge and Phase 4 execution each require separate explicit approval.
