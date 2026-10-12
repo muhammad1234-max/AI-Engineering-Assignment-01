@@ -1,0 +1,33 @@
+{
+  "artifact": "report/evidence/F10_inference.png",
+  "sha256": "8c942e76ddd29e718335717fe690a04e10c3b97d2337e1c8dfee7f592d0d9a5c",
+  "bytes": 171955,
+  "source_sha256": {
+    "experiments/visualize_inference.py": "05b0d3b2de8c003a6b1d46db68e31ddc881cf93ae8b2fcd5feee4279e2974907",
+    "experiments/phase3_evidence.py": "5a2cf25e3b76a55104e849dffa4180e5a77ad6afe9f10300ab912b274de1ce18",
+    "src/zaid_lm/api.py": "310520219ae55e88bc2a5d5451677533690b27fce644a4f0d7330a2c583bb939",
+    "src/zaid_lm/generate.py": "05007208f60718b61aee39a97208a568f28eefb75ffe4f58ca60e07e118fc728"
+  },
+  "details": {
+    "command": "python -m experiments.visualize_inference",
+    "kind": "live inference evidence showing CLI and REST API execution",
+    "checkpoint": "best_model.pt",
+    "cli_prompt": "KING CLAUDIUS:\n",
+    "api_prompt": "ROMEO:\n",
+    "api_response": {
+      "prompt": "ROMEO:\n",
+      "completion": "As hor sow, lild sheng bat allee.\n\nOLI:\nAs to houch thend is",
+      "full_text": "ROMEO:\nAs hor sow, lild sheng bat allee.\n\nOLI:\nAs to houch thend is",
+      "tokens_generated": 60,
+      "elapsed_seconds": 0.7021,
+      "tokens_per_second": 85.46,
+      "model_step": 1500,
+      "val_loss": 2.3384461402893066
+    },
+    "cli_result": {
+      "tokens": 70,
+      "elapsed": 0.843,
+      "tok_per_sec": 83.0
+    }
+  }
+}

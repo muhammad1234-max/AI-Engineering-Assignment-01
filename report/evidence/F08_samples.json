@@ -1,0 +1,26 @@
+{
+  "artifact": "report/evidence/F08_samples.png",
+  "sha256": "a1b552a6ae3f00aacc7f9eb0fbbb73e019d87868dac6f820db58fee2411238b0",
+  "bytes": 147926,
+  "source_sha256": {
+    "experiments/generate_samples.py": "da8a0448d51d999b7f7d898c1143d56edb8ba5baa4e98e319791ac30c330ea3c",
+    "experiments/phase3_evidence.py": "5a2cf25e3b76a55104e849dffa4180e5a77ad6afe9f10300ab912b274de1ce18",
+    "src/zaid_lm/gpt.py": "4d38e89c30c62352e1e3e1b2a7455d9cadd0da0ead6704445e6b0ea847820de4"
+  },
+  "details": {
+    "command": "python -m experiments.generate_samples",
+    "kind": "authentic generated samples from 5 fixed prompts",
+    "checkpoint": "best_model.pt",
+    "temperature": 0.8,
+    "top_k": 40,
+    "seed": 42,
+    "prompts": [
+      "ROMEO:\n",
+      "JULIET:\n",
+      "HAMLET:\n",
+      "To be, or not to be",
+      "O, swear not by the moon"
+    ],
+    "text_output": "outputs/samples/generated_samples.txt"
+  }
+}

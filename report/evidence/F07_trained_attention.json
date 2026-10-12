@@ -1,0 +1,21 @@
+{
+  "artifact": "report/evidence/F07_trained_attention.png",
+  "sha256": "654b114729517919ecbc215113fd792eb64f865a90cd48cc32f77240a6d384c4",
+  "bytes": 88349,
+  "source_sha256": {
+    "experiments/visualize_trained_attention.py": "81f3a02293eee5a571b8edab9d3b2de009e312464f770f05c9e4bc988cc4b249",
+    "experiments/phase3_evidence.py": "5a2cf25e3b76a55104e849dffa4180e5a77ad6afe9f10300ab912b274de1ce18",
+    "src/zaid_lm/gpt.py": "4d38e89c30c62352e1e3e1b2a7455d9cadd0da0ead6704445e6b0ea847820de4"
+  },
+  "details": {
+    "command": "python -m experiments.visualize_trained_attention",
+    "kind": "attention heatmap extracted from genuine trained checkpoint",
+    "checkpoint": "best_model.pt",
+    "prompt": "ROMEO:\nWhat light",
+    "layers_inspected": [
+      0,
+      3
+    ],
+    "heads_inspected": 4
+  }
+}

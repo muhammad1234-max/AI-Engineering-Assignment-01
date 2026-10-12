@@ -29,3 +29,12 @@ tmp/
 .ipynb_checkpoints/
 Thumbs.db
 .DS_Store
+*.ico
+node_modules/
+frontend/node_modules/
+frontend/.nitro/
+frontend/.output/
+frontend/dist/
+frontend/dist-ssr/
+frontend/.vinxi/
+frontend/.tanstack/

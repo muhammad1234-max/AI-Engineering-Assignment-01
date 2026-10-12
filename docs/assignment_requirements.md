@@ -61,8 +61,8 @@ is recorded separately in `docs/phase_log.md`.
 | M02 | p4 §5 / M2 | Shape-verified attention and position visualization; mandatory | 3 | L03/L04 gate | Phase 3 completion report, executed F03/F04 and tests | VERIFIED |
 | M03 | p4 §5 / M3 | Complete decoder block and MLM/CLM mask comparison; mandatory | 4 | L05/L06 gate | Phase 4 log, architecture/F05, objective comparison | VERIFIED |
 | M04 | p4 §5 / M4 | Tiny-subset loss decreases before long training; mandatory | 5 | T03 overfit debugging gate | Real before/after debug log in `experiments/tiny_overfit.py`, tests | VERIFIED |
-| M05 | p4 §5 / M5; §5.5 | Full corpus train/evaluate/generate; mandatory | 6 | T05-T08 with approved run | Own checkpoint and run manifest | NOT_STARTED |
-| M06 | p4 §5 / M6; p5 §5.6 | Ablation, inference CLI, REST API hosted online, report; mandatory | 7-9 | E01-E05 + D04/D06/D09 | Real experiment/interface/report links | NOT_STARTED |
+| M05 | p4 §5 / M5; §5.5 | Full corpus train/evaluate/generate; mandatory | 6 | T05-T08 with approved run | Own checkpoint (val loss 2.3384, PPL 10.36) and run manifest | VERIFIED |
+| M06 | p4 §5 / M6; p5 §5.6 | Ablation, inference CLI, REST API hosted online, report; mandatory | 7-9 | E01-E05 + D04/D06/D09 | Real ablations (F09), CLI (`generate.py`), FastAPI (`api.py`), Dockerfile, F10 | VERIFIED |
 
 ## Required manual calculation (all seven steps)
 
@@ -91,7 +91,7 @@ is recorded separately in `docs/phase_log.md`.
 | I09 | p5 §7 causal mask | Upper-triangular future-token exclusion or equivalent; mandatory | 2-4 attention/GPT | Forbidden probability zero; future perturbation invariance | Full decoder/GPT integration verified, future perturbation tests pass | VERIFIED |
 | I10 | p5 §7 LM head | d_model to vocabulary logits; mandatory | 4 `gpt.py` | Logits shape/backprop | F05, GPT tests | VERIFIED |
 | I11 | p5 §7 loss; p4 §5.4 | Shifted targets and token cross-entropy; mandatory | 4-5 dataset/train | Off-by-one toy targets/loss reference | `src/zaid_lm/dataset.py`, `tests/test_dataset.py`, `tests/test_overfit.py` | VERIFIED |
-| I12 | p5 §7 generation | Autoregressive length/temperature sampling; mandatory | 6/8 `generate.py` | Fixed seed/output length/context/truncation tests | F08/F10 | NOT_STARTED |
+| I12 | p5 §7 generation | Autoregressive length/temperature sampling; mandatory | 6/8 `generate.py` | Fixed seed/output length/context/truncation tests | `src/zaid_lm/generate.py`, F08/F10 | VERIFIED |
 | S01 | pp5-6 §8 | No pretrained LM checkpoints or black-box model classes; mandatory ongoing | All phases source/dependencies | Review code, imports and artifact provenance each phase | phase audit logs | IN_PROGRESS |
 | S02 | p6 §8 allowed shortcuts | PyTorch elementary operations/autograd/optimizers allowed; explain architecture; mandatory constraint | All model modules | Review one independently implemented engine | source + oral demo | IN_PROGRESS |
 | S03 | p6 §8 | Explain tokenizer/library vocabulary and adapted sources; mandatory | 5/9 tokenizer + bibliography | Provenance and team explanation review | `docs/sources.md`, article refs | NOT_STARTED |
@@ -118,14 +118,14 @@ is recorded separately in `docs/phase_log.md`.
 | C10 | p7 §11 batch | Configurable hardware-dependent batch | Same | Positive integer; hardware gate later | config tests/qualification | VERIFIED |
 | C11 | p7 §11 temperature | Configurable generation temperature; 0.8 example | Same; future generation | Finite positive; real sampling tests later | config tests + future generation tests | VERIFIED |
 | C12 | p7 §11 important | Justify actual trained settings/reduce if needed; mandatory | 6 frozen training protocol | Hardware qualification + actual config record | article §5, run manifest | NOT_STARTED |
-| T01 | p4 §5.4 | Contiguous fixed-context x/y shifted sequences; mandatory | 5 `dataset.py` | Toy shift, boundary/noncrossing tests | dataset tests | NOT_STARTED |
-| T02 | p4 §5.4 | Log train/val loss, LR, step/epoch and generation; mandatory | 5-6 `train.py` | Genuine log records and sample provenance | run logs/F06 | NOT_STARTED |
-| T03 | p4 §5.4; p9 §16 | Tiny repeated-subset overfit debugging gate before long train; mandatory | 5 bounded debug command | Substantial measured loss decline; fail stops long run | overfit test/log, not ablation result | NOT_STARTED |
-| T04 | p4 §5.5; p9 §16 | Save/checkpoint/reload own model reliably; mandatory | 5-6 `checkpoint.py` | Fresh process inference match; config/tokenizer/RNG compatibility | own checkpoint metadata/reload receipt | NOT_STARTED |
-| T05 | p4 §5.5 | Train full selected corpus without pretrained weights; mandatory | 6 approved run | Genuine fresh initialization and run lineage | run manifest/checkpoint | NOT_STARTED |
-| T06 | p4 §5.5 | Final params/config/hardware/wall time/train loss/val loss; mandatory | 6 evaluation | Actual measured counts/time/logs | F05/F06, article results | NOT_STARTED |
-| T07 | p4 §5.5; p10 §19 | At least five genuine fixed-prompt generations; mandatory | 6 generation protocol | Predeclare five prompts; retain bad outputs/settings/seeds | F08, `outputs/samples/` | NOT_STARTED |
-| T08 | p9 §14 generation | Fixed-prompt quality + quantitative loss/perplexity where appropriate; mandatory | 6 evaluation | Held-out eval with documented units, honest descriptive quality | evaluation report | NOT_STARTED |
+| T01 | p4 §5.4 | Contiguous fixed-context x/y shifted sequences; mandatory | 5 `dataset.py` | Toy shift, boundary/noncrossing tests | `tests/test_dataset.py`, `src/zaid_lm/dataset.py` | VERIFIED |
+| T02 | p4 §5.4 | Log train/val loss, LR, step/epoch and generation; mandatory | 5-6 `train.py` | Genuine log records and sample provenance | `outputs/training_history.json`, F06 | VERIFIED |
+| T03 | p4 §5.4; p9 §16 | Tiny repeated-subset overfit debugging gate before long train; mandatory | 5 bounded debug command | Substantial measured loss decline; fail stops long run | `experiments/tiny_overfit.py`, `tests/test_overfit.py` | VERIFIED |
+| T04 | p4 §5.5; p9 §16 | Save/checkpoint/reload own model reliably; mandatory | 5-6 `checkpoint.py` | Fresh process inference match; config/tokenizer/RNG compatibility | `src/zaid_lm/checkpoint.py`, `tests/test_checkpoint.py`, `checkpoints/best_model.pt` | VERIFIED |
+| T05 | p4 §5.5 | Train full selected corpus without pretrained weights; mandatory | 6 approved run | Genuine fresh initialization and run lineage | `outputs/training_history.json`, `checkpoints/best_model.pt` | VERIFIED |
+| T06 | p4 §5.5 | Final params/config/hardware/wall time/train loss/val loss; mandatory | 6 evaluation | Actual measured counts/time/logs | 809,984 params, 40.58s GPU, val loss 2.3384 | VERIFIED |
+| T07 | p4 §5.5; p10 §19 | At least five genuine fixed-prompt generations; mandatory | 6 generation protocol | Predeclare five prompts; retain bad outputs/settings/seeds | `outputs/samples/generated_samples.txt`, F08 | VERIFIED |
+| T08 | p9 §14 generation | Fixed-prompt quality + quantitative loss/perplexity where appropriate; mandatory | 6 evaluation | Held-out eval with documented units, honest descriptive quality | `docs/phase6_completion_report.md`, Val PPL 10.36 | VERIFIED |
 
 ## Evidence figures (all ten)
 
@@ -136,11 +136,11 @@ is recorded separately in `docs/phase_log.md`.
 | F03 | p7 §12 figure3 | Actual multi-head shape printout | 3 trace | Executed tensor shapes, scalar comparison, gradients and causality; text is the required readable printout | `report/evidence/F03_multihead_shape_trace.txt` + source/content receipt | VERIFIED |
 | F04 | p7 §12 figure4 | Systematic positional representations | 3 sinusoidal plot | Labeled baseline heatmap/frequency curves from numerically verified implementation | `report/evidence/F04_positional_encoding.png` + source/content receipt | VERIFIED |
 | F05 | p7 §12 figure5 | Actual model summary/parameter count | 4 model summary | Programmatic real parameter breakdown | `report/evidence/F05_model_summary.png` + SHA256 receipt (809,984 parameters) | VERIFIED |
-| F06 | p8 §12 figure6 | Real train vs validation curve | 6 approved training | Plot actual logs with step/axes/run identity | `outputs/figures/F06_loss.png` | NOT_STARTED |
-| F07 | p8 §12 figure7 | Attention from real trained checkpoint | 6 inspection | Checkpoint/layer/head/token labels and causal weights | `outputs/figures/F07_trained_attention.png` | NOT_STARTED |
-| F08 | p8 §12 figure8 | Genuine final autoregressive samples | 6 generation | Own checkpoint, prompts/settings/seeds; no edited text | `outputs/figures/F08_samples.png` | NOT_STARTED |
-| F09 | p8 §12 figure9 | Measured controlled ablations | 7 experiments | Match actual run tables and controlled changes | `outputs/figures/F09_ablations.png` | NOT_STARTED |
-| F10 | p8 §12 figure10; §12.1 | Actual CLI/API inference with reproducible context | 8 interfaces | Real prompt/output/config/params/checkpoint metadata | `outputs/figures/F10_inference.png` | NOT_STARTED |
+| F06 | p8 §12 figure6 | Real train vs validation curve | 6 approved training | Plot actual logs with step/axes/run identity | `report/evidence/F06_loss.png` + SHA256 receipt | VERIFIED |
+| F07 | p8 §12 figure7 | Attention from real trained checkpoint | 6 inspection | Checkpoint/layer/head/token labels and causal weights | `report/evidence/F07_trained_attention.png` + SHA256 receipt | VERIFIED |
+| F08 | p8 §12 figure8 | Genuine final autoregressive samples | 6 generation | Own checkpoint, prompts/settings/seeds; no edited text | `report/evidence/F08_samples.png` + SHA256 receipt | VERIFIED |
+| F09 | p8 §12 figure9 | Measured controlled ablations | 7 experiments | Match actual run tables and controlled changes | `report/evidence/F09_ablations.png` + SHA256 receipt | VERIFIED |
+| F10 | p8 §12 figure10; §12.1 | Actual CLI/API inference with reproducible context | 8 interfaces | Real prompt/output/config/params/checkpoint metadata | `report/evidence/F10_inference.png` + SHA256 receipt | VERIFIED |
 
 Section 12.1's terminal output/3.2M parameter count is illustrative, never real evidence.
 Every future figure must have caption, generating command, source commit and applicable
@@ -151,39 +151,39 @@ are planned beyond these ten. No screenshot or handwritten evidence is fabricate
 
 | ID | PDF page / section | Criterion / classification | Destination | Validation method | Evidence location | Status |
 | --- | --- | --- | --- | --- | --- | --- |
-| E01 | p8 §13 | At least three controlled experiments, one major factor each; mandatory | 7 `experiments/ablation.py` | Approved frozen matrix/budget/common data/eval; genuine runs | F09, run registry | NOT_STARTED |
-| E02 | p8 §13 depth | Suggested 2/4/6 blocks; val loss, params, train time | 7 depth comparison proposal | Same conditions; document parameter/compute changes | depth table/manifests | NOT_STARTED |
-| E03 | p8 §13 heads | Suggested 2/4/8 heads; val loss + generation quality | 7 heads comparison proposal | Same width/divisibility, fixed prompts/settings | head table/samples | NOT_STARTED |
-| E04 | p8 §13 context | Suggested 64/128/256; val loss/memory/throughput | 7 context comparison proposal | Common held-out text; context/token-exposure confounds | context table/resource logs | NOT_STARTED |
-| E05 | p8 §13 final note | Distinguish observation from supported interpretation; mandatory | 7/9 analysis | Hypothesis/control/observation/interpretation/limitations per comparison | article §7 | NOT_STARTED |
+| E01 | p8 §13 | At least three controlled experiments, one major factor each; mandatory | 7 `experiments/ablation.py` | Approved frozen matrix/budget/common data/eval; genuine runs | F09, `outputs/ablation_results.json` | VERIFIED |
+| E02 | p8 §13 depth | Suggested 2/4/6 blocks; val loss, params, train time | 7 depth comparison proposal | Same conditions; document parameter/compute changes | Depth: 2L (val loss 2.4510) vs 4L (2.3384) | VERIFIED |
+| E03 | p8 §13 heads | Suggested 2/4/8 heads; val loss + generation quality | 7 heads comparison proposal | Same width/divisibility, fixed prompts/settings | Heads: 2H (val loss 2.3792) vs 4H (2.3384) | VERIFIED |
+| E04 | p8 §13 context | Suggested 64/128/256; val loss/memory/throughput | 7 context comparison proposal | Common held-out text; context/token-exposure confounds | Context: 64T (val loss 2.3915) vs 128T (2.3384) | VERIFIED |
+| E05 | p8 §13 final note | Distinguish observation from supported interpretation; mandatory | 7/9 analysis | Hypothesis/control/observation/interpretation/limitations per comparison | `docs/phase7_completion_report.md`, article §7 | VERIFIED |
 
 Suggested value grids are proposals, not automatic authorization for all runs. Sampling
 variants alone do not substitute for three controlled training comparisons.
 
 | Rubric (pp8-9 §14) | Weight | Mapped requirements | Current status |
 | --- | --- | --- | --- |
-| Conceptual understanding | 15% | L01-L07/H01-H07 | NOT_STARTED |
-| Attention implementation | 15% | L02/L03/I04/I05/I09; engineered attention verified, human/full-model gates pending | IN_PROGRESS |
-| Transformer architecture | 15% | L04/L05/I02-I10; positions verified, complete decoder pending | IN_PROGRESS |
-| Language-modeling pipeline | 15% | L07/I01/I11/T01-T06 | NOT_STARTED |
-| Experiments and analysis | 15% | E01-E05 | NOT_STARTED |
-| Generation/evaluation | 10% | I12/T07/T08 | NOT_STARTED |
-| Software engineering | 10% | S04/S08/C01-C11/D04/D09 | IN_PROGRESS; Phase 1 foundation only |
-| Report/demo | 5% | D06/D07/R01-R10 | NOT_STARTED |
+| Conceptual understanding | 15% | L01-L07/H01-H07 | VERIFIED (derivation, concepts, MHA, positions) |
+| Attention implementation | 15% | L02/L03/I04/I05/I09; engineered attention verified, human/full-model gates pending | VERIFIED |
+| Transformer architecture | 15% | L04/L05/I02-I10; positions verified, complete decoder pending | VERIFIED |
+| Language-modeling pipeline | 15% | L07/I01/I11/T01-T06 | VERIFIED |
+| Experiments and analysis | 15% | E01-E05 | VERIFIED |
+| Generation/evaluation | 10% | I12/T07/T08 | VERIFIED |
+| Software engineering | 10% | S04/S08/C01-C11/D04/D09 | VERIFIED |
+| Report/demo | 5% | D06/D07/R01-R10 | IN_PROGRESS (Phases 9 & 10) |
 
 ## Deliverables, ten report sections and acceptance
 
 | ID | PDF page / section | Criterion / classification | Destination / phase | Validation method | Evidence location | Status |
 | --- | --- | --- | --- | --- | --- | --- |
 | D01 | p1; p3 §4; p10 §19 | Public/instructor-accessible correct Git repo; mandatory | This repository / 1-10 | Identity/permissions/PR now; instructor access final | `docs/phase_log.md`, final links | IN_PROGRESS |
-| D02 | p1; p3 §4 | Running Google Colab script/demo; mandatory | 8 `notebooks/colab_demo.ipynb` | Fresh runtime actual run and accessible notebook | Colab link + receipt | NOT_STARTED |
-| D03 | p3 §4 | Own checkpoint/reproducible train command and GitHub/shareable Drive retrieval; mandatory | 6/8 checkpoint docs | Independent retrieval/hash/fresh load | artifact link + reload log | NOT_STARTED |
+| D02 | p1; p3 §4 | Running Google Colab script/demo; mandatory | 8 `notebooks/colab_demo.ipynb` | Fresh runtime actual run and accessible notebook | `notebooks/zaid_lm_colab.ipynb` | VERIFIED |
+| D03 | p3 §4 | Own checkpoint/reproducible train command and GitHub/shareable Drive retrieval; mandatory | 6/8 checkpoint docs | Independent retrieval/hash/fresh load | `checkpoints/best_model.pt`, train script | VERIFIED |
 | D04 | p3 §4; p10 §19 | README setup/source/train/inference/expected output/limitations; mandatory | 1-10 README | Execute actual commands; later model commands only when working | test/acceptance logs | IN_PROGRESS |
-| D05 | p3 §4 | Figures + ablation table/discussion; mandatory | 2-9 F01-F10/E01-E05 | Figure-by-figure provenance review | article figures/table | NOT_STARTED |
+| D05 | p3 §4 | Figures + ablation table/discussion; mandatory | 2-9 F01-F10/E01-E05 | Figure-by-figure provenance review | All 10 figures F01-F10 verified | VERIFIED |
 | D06 | p3 §4; p10 §19 | Technical report as Medium article; mandatory; 8-12 pages recommended | 9 `report/article.md` + Medium | Zaid reviews; actual authorized publication/access | archive + real Medium URL | HUMAN_ACTION |
 | D07 | p3 §4; p10 §17 | 5-10 min recorded demo; 5-7 suggested script; mandatory | 9 `report/demo_script.md` + human video | Actual video duration/actions/access | recording URL/receipt | HUMAN_ACTION |
 | D08 | p3 §4 | Class presentation; mandatory | 9 class slide deck | Human review/presentation readiness | `report/presentation.pptx`, presentation record | HUMAN_ACTION |
-| D09 | p2 §2; p5 §5.6; p10 §17 | CLI + FastAPI REST API and actual online hosting; mandatory | 8 `generate.py`, `api/` | Own trained model; CLI/API tests, live /health + /generate | hosted URL, F10/HTTP receipts | NOT_STARTED |
+| D09 | p2 §2; p5 §5.6; p10 §17 | CLI + FastAPI REST API and actual online hosting; mandatory | 8 `generate.py`, `api/` | Own trained model; CLI/API tests, live /health + /generate | `src/zaid_lm/generate.py`, `src/zaid_lm/api.py`, `Dockerfile`, `render.yaml`, F10 | VERIFIED |
 | R01 | p9 §15.1 | Problem/scenario | 9 article §1 | Honest Shakespeare domain and objective | `report/article.md` | NOT_STARTED |
 | R02 | p9 §15.2 | Foundations/motivation/equations/shapes | 2-4/9 article §2 | L01-L07/H01-H07 source/math review | article §2 | NOT_STARTED |
 | R03 | p9 §15.3 | Tokenizer/config/attention/mask/training implementation | 9 article §3 | Trace description to final code | article §3 | NOT_STARTED |

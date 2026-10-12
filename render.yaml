@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: zaid-lm-api
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    plan: free
+    region: oregon
+    envVars:
+      - key: PORT
+        value: 8000
+      - key: ZAID_LM_CHECKPOINT
+        value: checkpoints/best_model.pt

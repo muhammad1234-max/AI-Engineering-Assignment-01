@@ -1,0 +1,46 @@
+[
+  {
+    "name": "Baseline (4L, 4H, T128)",
+    "factor": "Baseline",
+    "n_layers": 4,
+    "n_heads": 4,
+    "context_length": 128,
+    "parameters": 809984,
+    "best_val_loss": 2.6894,
+    "final_train_loss": 2.7199,
+    "elapsed_seconds": 13.9
+  },
+  {
+    "name": "Depth: 2 Layers",
+    "factor": "Depth (Layers)",
+    "n_layers": 2,
+    "n_heads": 4,
+    "context_length": 128,
+    "parameters": 413440,
+    "best_val_loss": 2.7432,
+    "final_train_loss": 2.8255,
+    "elapsed_seconds": 7.4
+  },
+  {
+    "name": "Heads: 2 Heads",
+    "factor": "Attention Heads",
+    "n_layers": 4,
+    "n_heads": 2,
+    "context_length": 128,
+    "parameters": 809984,
+    "best_val_loss": 2.6943,
+    "final_train_loss": 2.7183,
+    "elapsed_seconds": 12.1
+  },
+  {
+    "name": "Context: 64 Tokens",
+    "factor": "Context Window",
+    "n_layers": 4,
+    "n_heads": 4,
+    "context_length": 64,
+    "parameters": 809984,
+    "best_val_loss": 2.6935,
+    "final_train_loss": 2.8386,
+    "elapsed_seconds": 12.3
+  }
+]

@@ -18,6 +18,7 @@ EVIDENCE_PNGS = {
     "report/evidence/F07_trained_attention.png",
     "report/evidence/F08_samples.png",
     "report/evidence/F09_ablations.png",
+    "report/evidence/F10_inference.png",
 }
 EVIDENCE_TEXT = {"report/evidence/F03_multihead_shape_trace.txt"}
 

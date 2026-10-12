@@ -1,0 +1,19 @@
+{
+  "artifact": "report/evidence/F06_loss.png",
+  "sha256": "7eea4b42412e23e2aeef0cd473a39be059e50761fa3c4ec5d1bd5d39215077d0",
+  "bytes": 138276,
+  "source_sha256": {
+    "experiments/visualize_loss_curves.py": "81685d1fbdb64b27167219c4fd51296620018ca97f2f9beb33ae0f1824d0e13c",
+    "experiments/phase3_evidence.py": "5a2cf25e3b76a55104e849dffa4180e5a77ad6afe9f10300ab912b274de1ce18",
+    "src/zaid_lm/train.py": "78aa9c646502569107538a700ff88b396f0d3f05b5f30356bf2fa17cc7321a01"
+  },
+  "details": {
+    "command": "python -m experiments.visualize_loss_curves",
+    "kind": "genuine trained-model loss and perplexity curves",
+    "total_steps": 1500,
+    "best_val_loss": 2.3384,
+    "final_train_loss": 2.3746,
+    "final_val_loss": 2.3384,
+    "history_file": "outputs/training_history.json"
+  }
+}
