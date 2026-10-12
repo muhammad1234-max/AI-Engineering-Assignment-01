@@ -1,0 +1,15 @@
+{
+  "artifact": "report/evidence/F01_manual_attention.png",
+  "sha256": "dc94827d16f1a70c9d35b0f64a348c1a9e39afb2b1147985ac7f2bd37af4af09",
+  "bytes": 127047,
+  "source_sha256": {
+    "experiments/attention_example.py": "02898d169623dcd5a6993cb7ed3ded5f57d8bdfb75674eb182226665b5da0f54",
+    "src/zaid_lm/attention.py": "e3c2402cd8d2815e23977b3645a74c722c94173d48ed68161d006b75eea8683a",
+    "docs/manual_attention.md": "311ead3911145fd3f692d5fd7d9ace94232849b491fecde87d7adcfeffe4327b"
+  },
+  "details": {
+    "kind": "verified worked calculation, not handwriting or trained results",
+    "rounding": "six decimals",
+    "human_review": "pending"
+  }
+}
