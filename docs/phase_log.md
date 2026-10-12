@@ -1,5 +1,9 @@
 # Phase 1 log
 
+Historical Phase 1 receipt below is preserved. The later authorized Phase 2 execution
+and PR1 merge are recorded at the end; earlier stop/open-PR statements describe
+the Phase 1 endpoint, not the current repository state.
+
 Phase 1: COMPLETE. Local implementation/verification and feature-branch publication
 verified. Full assignment: NOT COMPLETE. Pull request open; no merge performed.
 Date: 2026-10-12, Windows x64 / PowerShell, Python 3.14.0, CPU-only torch 2.10.0+cpu.
@@ -147,3 +151,149 @@ No multi-head engine, positions, full model, data/training, ablation or deployme
 
 The complete inventory and environment/configuration/next-phase report are in
 `phase1_completion_report.md`. **STOPPED - WAITING FOR EXPLICIT PHASE 2 APPROVAL.**
+
+# Phase 2 execution log — 2026-10-12
+
+User explicitly authorized Phase 2 using the newly supplied Desktop instructions.txt.
+Re-read it in full, preserved exact bytes in `docs/phase2_instructions.txt`, and kept
+historical root `instructions.txt` unchanged. Re-read every listed foundation source,
+all 11 PDF pages (text and rendered images), master, architecture, complete matrix,
+Phase 1 log/report, config/reproducibility/tests, pyproject and README before code.
+The Version 1.1 reference remains a historical discrepancy; supplied master is 1.0.
+PDF unchanged SHA256 `30e543d6d429f60bba96f7c20e2131d198551112b018520f6eae6dd8a23c6bdd`.
+Temporary PDF renders are ignored under this project's `tmp/pdf-review/`.
+
+## Verified merge prerequisite and branch
+
+`git remote -v`, repo root/status, `gh api user --jq .login`, account permissions,
+PR1 head/content/checks were verified. Account zaidbinnaveed; exact authorized origin;
+clean worktree. Reviewed head `25c5f627580faa2e144173b6013aac2fb858b053` unchanged;
+all four final Phase 1 push/PR Python 3.11/3.14 checks SUCCESS. `gh pr diff --stat`
+was unsupported; corrected to `--name-only` plus local Git diffstat.
+
+Executed authorized `gh pr merge 1 --repo zaidbinnaveed/AI-Engineering-Assignment-01
+--merge --match-head-commit 25c5f627580faa2e144173b6013aac2fb858b053`.
+Rechecked PR1 state MERGED at `2026-10-12T13:38:23Z`, merge commit
+`f04dd07cb8c5fad8cd21ae19f111b548283706f8`.
+Executed `git fetch origin`, `git switch main`, `git merge --ff-only origin/main`,
+`git switch -c phase-2-attention-engine`, `git rev-parse HEAD`, `git status --short`.
+Phase 2 branch starts from that exact integrated main commit, not recreated Phase 1.
+No Phase 2 merge is authorized or performed.
+
+## Mathematics, code decisions and evidence
+
+Selected the handoff's exactly-three-token example:
+Q=K=[[1,0],[0,1],[1,1]], V=[[1,2],[3,0],[0,4]], dk=dv=2.
+Derived QKᵀ=[[1,0,1],[0,1,1],[1,1,2]], scaled by sqrt(2). Defined
+a=1/sqrt(2), r=exp(a); every dot product, scaled entry, row numerator/denominator,
+probability/sum and six unrestricted/causal weighted output components are explicit.
+Scalar math calculator provided decimal approximations after exact expressions;
+independent Python-loop oracle verifies all seven intermediates and the float64 engine.
+Unmasked O≈[[0.994440,2.406673],[1.401112,2],[0.993020,2.510470]].
+Causal O≈[[1,2],[2.339523,0.660477],[0.993020,2.510470]].
+Maximum engine absolute error 1.1102230246251565e-16; document nine-decimal error
+4.845538414954831e-10, inside 5.1e-10 rounding-aware tolerance.
+
+Engine explicitly computes matmul/scaling/masked_fill/row-softmax/matmul. Pure supplied
+Q/K/V, no trainable projection/fused attention. Shapes (...,Tq,dk), (...,Tk,dk),
+(...,Tk,dv) with identical leading axes; masks alone broadcast to (...,Tq,Tk).
+Float32/float64, positive dimensions, finite inputs and common dtype/device. Non-square
+unmasked permitted; aligned equal causal lengths required. Boolean True blocks;
+additive entries same dtype 0/-inf only. Mask union before softmax; fully blocked rows
+raise clearly. No precision conversion, CPU fallback, dropout or projection.
+
+Added complete typed manual derivation and human review notice, independent experiment,
+math/shape/mask/numeric/gradient tests, structural mask generator and reasoned
+RNN/Transformer comparison. Sources/attribution documented. No RNN benchmark/training.
+Pinned Matplotlib 3.10.8 only as development figure dependency. Existing baseline and
+all Phase 1 source/tests unchanged. PNG exceptions in index scanner limited to exact
+F01/F02 names, <500 KB, PNG signature, artifact/source hashes; all other binary policy
+remains. Remote audit accepts the same exact HTTPS repository with/without .git suffix
+for actions/checkout compatibility, not another remote.
+
+## Actual verification and corrections
+
+`PY` abbreviates `.\.venv-phase1\Scripts\python.exe`, repository root:
+
+| Command actually executed | Outcome |
+| --- | --- |
+| `PY -m pytest -q` before Phase 2 changes | Original 54 passed in 66.66s |
+| `PY -m pip install matplotlib==3.10.8 --timeout 30 --retries 0` | Sandbox lookup failed; approved network retry installed compatible cp314 Windows wheel |
+| `PY -m ruff check . --fix`, `PY -m ruff format .` | Initial compact semicolon style flagged; format corrected, final checks passed |
+| Initial attention test runs | 80 passed, 2 failed: expected 1/3 constructed float32 before float64 comparison; corrected dtype, kept strict tolerance |
+| `PY -m pytest tests/test_attention.py -q` after correction | 82 passed in 3.61s, zero failed/skipped |
+| `PY -m pytest -q` editable | 136 passed in 23.03s, zero failed/skipped; original 54 intact |
+| `PY -m pip check` | No broken requirements found |
+| `PY -m pip install --no-build-isolation --no-deps -e .` | Editable installation passed |
+| `PY -m build --no-isolation` | sdist and wheel built successfully |
+| `PY -m pip install --no-deps --force-reinstall dist/zaid_lm-0.1.0-py3-none-any.whl`, then full pytest | Noneditable wheel installed; 136 passed in 186.34s; zero failed/skipped |
+| `PY -m experiments.attention_example --figure` | Independent seven-matrix checks PASS; verified F01 and JSON receipts |
+| `PY -m experiments.visualize_causal_mask` | Implementation agrees with independent index rule for 3/8 tokens; F02 generated |
+| `PY -m pip freeze --exclude-editable` | Recorded exact Phase 2 Windows environment separately |
+| `git add .`, `PY scripts/verify_repository.py`, `git diff --cached --check` | 49-file index audit PASS, largest 127,047 bytes, zero findings; staged diff check passed |
+| `git check-ignore` env/PDF temp/output PNG/dist wheel | All generated paths ignored; only validated report PNGs tracked |
+
+CPU-thread launch overhead slowed tiny initial gradchecks; a scoped one-thread test
+fixture restores the previous setting afterward. This is test scheduling, not model
+speed evidence. One edit patch missed formatter-altered context, failed atomically,
+then was corrected against actual text. Sandbox GitHub recheck errors resolved with
+approved access; authenticated account and merge receipt reverified. Credentials
+never printed or written. Local CRLF/LF Git normalization notices were informational;
+source SHA256 receipts were checked against the actual staged bytes.
+
+Visually inspected initial and regenerated F01/F02. Initial F02 footer/legend overlapped;
+reserved figure margins and re-rendered. F01 row/feature/key labels improved. Final PNGs
+fully readable and numerically correct. F01 is 127,047 bytes; F02 is 76,383 bytes;
+hashes and generators recorded in neighboring JSON. Ignored `outputs/figures/` retains
+generated copies; tracked `report/evidence/` retains only small report-ready copies.
+
+## Scope, human review and scientific limits
+
+Pure attention mathematics, engine, evidence and conceptual explanation are complete.
+L01/F02 verified; engineering acceptance table verified. H01-H06/F01/L02/M01 remain
+in progress at submission level pending Zaid's personal review; H07 human action.
+No fabricated handwritten scan, signature or personal understanding assertion.
+I04 projections await Phase 3; I09 full-model causal integration awaits Phase 4.
+No GPU verification; no half precision; eager finite-value checks may synchronize
+accelerators. No full model, data download/tokenizer, training/checkpoint, benchmark,
+ablations, generated model samples, API/deployment/article/submission was started.
+
+Next exact scope, **only after separate approval**: learned multi-head Q/K/V/output
+projections, explicit splitting/permutation/concatenation/merging, shape/reference/mask/
+gradient tests, genuine F03; own sinusoidal positions, formula/determinism/offset/
+dtype/device tests, genuine F04. Later milestones retain their own boundaries.
+Phase 2 GitHub publication and final CI receipts are appended only once verified.
+
+## Verified Phase 2 publication and implementation CI
+
+`git commit -m "Implement verified Phase 2 attention, manual derivation and causal evidence"`
+created `cfc7db3d9a986d0640b3c97648f88ab24a423877` (24 changed files).
+`git push origin phase-2-attention-engine` succeeded with approved network access;
+only the dedicated feature branch was created. `gh pr create --repo
+zaidbinnaveed/AI-Engineering-Assignment-01 --base main --head phase-2-attention-engine
+--title ... --body-file tmp/phase2-pr.md` created
+https://github.com/zaidbinnaveed/AI-Engineering-Assignment-01/pull/2.
+Verified OPEN, exact implementation head and base main
+`f04dd07cb8c5fad8cd21ae19f111b548283706f8`. PR2 was not merged.
+Temporary PR body is ignored and uses actual newlines, not escaped shell text.
+
+* Push CI https://github.com/zaidbinnaveed/AI-Engineering-Assignment-01/actions/runs/38260385925
+  COMPLETED SUCCESS, Linux CPU Python 3.11 **136 passed in 2.07s**, Python 3.14
+  **136 passed in 2.66s**. Read job logs for exact counts, not merely pending checks.
+* PR CI https://github.com/zaidbinnaveed/AI-Engineering-Assignment-01/actions/runs/38260453436
+  COMPLETED SUCCESS on both Python jobs at the same implementation head.
+* Actual steps confirmed CPU installation, pip check, pytest, lint/format, staged
+  evidence/source audit, config inspection, seven-matrix/F01 verification, F02
+  generation and package build. Display name initially retained the old workflow
+  label, but the new step list and successes were explicitly checked.
+* Restored editable development install after the successful noneditable-wheel suite;
+  lint passed, all 13 Python files formatted. Full Phase 1 functionality intact.
+* Regenerated both figures from unchanged sources: exact same local PNG SHA256 values,
+  unchanged tracked receipts and clean worktree. Final audit PASS: 49 tracked files,
+  largest 127,047 bytes, no findings. `git diff --cached --check` passed before commit.
+* Final report/log receipt is committed separately so verified implementation remains
+  identifiable. Final-head CI and open PR state are verified again before delivery;
+  final delivery message supplies that exact head SHA.
+
+**Phase 2 engineering COMPLETE. H07/M01 personal mathematics review pending.
+STOPPED — WAITING FOR REVIEW AND EXPLICIT PHASE 3 AUTHORIZATION.**

@@ -1,0 +1,785 @@
+# ZAID'S AI ENGINEERING ASSIGNMENT #01
+## PHASE 2 — Complete Manual Attention Derivation, Scaled Dot-Product Self-Attention, Causal Masking and Transformer Foundations
+
+### Mission
+
+You are Codex, working on **Zaid's independent AI Engineering Assignment #01**.
+
+This is the second implementation phase of a strictly sequential, evidence-based assignment workflow.
+
+Your job is to complete **Milestone 1 — Why Transformers + Attention from Scratch**, as specified by `A1_AIE.pdf`, including the mandatory hand-calculated attention example, an independently implemented attention function, causal masking, comprehensive numerical correctness tests, the sequential-versus-parallel-computation explanation, and genuine F01/F02 evidence figures.
+
+The objective is **correctness, understanding, reproducibility and evidence**. Do not prioritize speed of implementation over mathematical or scientific correctness.
+
+### 0. Project identity and absolute boundaries
+
+Authorized repository:
+
+https://github.com/zaidbinnaveed/AI-Engineering-Assignment-01
+
+Owner: `zaidbinnaveed`
+
+Local working directory:
+
+`C:\Users\Zaid\OneDrive\Desktop\AI-Engineering-Assignment-01`
+
+Package: `src/zaid_lm/`
+
+The assignment is **Zaid's**, and all work must remain inside this repository.
+
+The other previously confused Nano-Language-Model project is unrelated. Never reuse, import, compare against, or copy its implementation, checkpoints, training data artifacts, experimental evidence, tests or reports.
+
+Do not access its temporary inspection checkout as a source of implementation material.
+
+### 1. Verified Phase 1 state — read carefully
+
+Phase 1 is complete and has been reviewed.
+
+Pull request:
+
+https://github.com/zaidbinnaveed/AI-Engineering-Assignment-01/pull/1
+
+Phase 1 branch: `phase-1-foundation`
+
+Verified Phase 1 final commit:
+
+`25c5f627580faa2e144173b6013aac2fb858b053`
+
+Original main commit before Phase 1:
+
+`1ba89cba2aa04c355bedd16b70b3e07f1818553e`
+
+Phase 1 delivered:
+
+- Python package `zaid_lm`.
+- Strict `ProjectConfig` dataclass.
+- Baseline JSON configuration.
+- Reproducibility/seed management.
+- Configuration inspection CLI.
+- Pytest infrastructure.
+- CI on Python 3.11 and 3.14.
+- 54 passing local tests, independently corroborated by successful CI.
+- Assignment traceability documentation.
+- An independent project directory structure.
+- Environment and dependency declarations.
+
+The actual Phase 1 configuration is:
+
+- Character tokenizer, vocabulary unresolved.
+- Context length 128.
+- Model width 128.
+- Four heads.
+- Four Transformer layers.
+- FFN dimension 512.
+- GELU activation.
+- Sinusoidal positional encoding.
+- Dropout 0.1.
+- AdamW optimizer.
+- Learning rate 0.0003.
+- Batch size 16.
+- Provisional training budget 1,000 updates.
+- Generation temperature 0.8.
+- Random seed 42.
+- CPU as current development device.
+
+**These are proposed future model settings, not evidence that a trained model exists.**
+
+Do not alter them during Phase 2 without a demonstrated correctness requirement.
+
+Current environment:
+
+- Windows, Python 3.14.0.
+- PyTorch 2.10.0 CPU.
+- NumPy 2.4.6.
+- Pytest 9.0.3.
+- Ruff 0.15.4.
+
+The repository supports Python 3.11 through 3.14 and tests relevant versions in Linux CI.
+
+### 2. Establish the correct starting point
+
+Before writing code:
+
+1. Verify `git remote -v`.
+2. Verify the active GitHub account is `zaidbinnaveed`.
+3. Verify the repository location and worktree status.
+4. Confirm Phase 1 PR #1 is still at the reviewed head and successful CI.
+5. Review Phase 1 PR #1 and merge it with Zaid's authorization, using the supported repository merge workflow. If the head, CI, or reviewed content changed, stop and obtain review before merging.
+6. Fetch and synchronize the resulting main branch.
+7. Create a new Phase 2 feature branch, e.g. `phase-2-attention-engine`.
+8. Record the exact starting commit and branch.
+9. Preserve all Phase 1 files and their tests.
+
+If Phase 1 is not properly integrated into the new branch, do not proceed by recreating it or using an unrelated local directory.
+
+### 3. Read the actual specifications, not assumptions
+
+Read in full:
+
+- `A1_AIE.pdf`, all 11 pages, if locally available.
+- `docs/master_instructions_v1.0.txt`.
+- `instructions.txt`, recognizing it currently stores the historical Phase 1 handoff.
+- `docs/assignment_requirements.md`.
+- `docs/architecture.md`.
+- `docs/phase_log.md`.
+- `docs/phase1_completion_report.md`.
+- `src/zaid_lm/config.py`.
+- `src/zaid_lm/reproducibility.py`.
+- `tests/test_config.py`.
+- `tests/test_foundation.py`.
+- `pyproject.toml`.
+- `README.md`.
+
+Clarify the master instruction version discrepancy in the phase log. Preserve the substantive original requirements rather than inventing a Version 1.1 document.
+
+**Phase 2 corresponds to the PDF's sections 2, 3 (Lessons 01–02), 5.1, 6, 7, 12 (Figures 1–2), and relevant academic, reproducibility and testing requirements.**
+
+The PDF is academically authoritative.
+
+Do not skip hand calculations.
+
+### 4. Phase 2 deliverable structure
+
+Create or update the following files as justified by the existing repository:
+
+- `src/zaid_lm/attention.py` — independent scaled dot-product attention and mask implementation.
+- `tests/test_attention.py` — mathematical, shape, masking, gradient and error-handling tests.
+- `docs/manual_attention.md` — the entire independent numerical derivation.
+- `docs/why_transformers.md` — sequential/parallel-depth comparison.
+- `experiments/attention_example.py` — deterministic script to verify the manual example.
+- `experiments/visualize_causal_mask.py` — deterministic F02 visual-evidence generator.
+- `outputs/figures/` — genuine figure output location.
+- `report/evidence/` — small committed assignment evidence, where justified.
+- `docs/phase_log.md` — Phase 2 execution and verification history.
+- `docs/assignment_requirements.md` — evidence-linked Phase 2 statuses.
+- `README.md` — actual Phase 2 test and example usage.
+
+Use sensible names and avoid redundant modules or copying implementations into several files.
+
+If plots need Matplotlib, introduce and pin a compatible dependency, with testing on the supported Python versions. Avoid unrelated dependencies.
+
+### 5. Required mathematical foundations
+
+Explain the sequence of operations:
+
+1. A sequence of token representations is projected to query, key and value vectors.
+2. Query-key dot products represent compatibility scores.
+3. Scores are scaled by the square root of key dimension.
+4. A mask restricts disallowed attention locations.
+5. Softmax converts allowed scores into normalized weights.
+6. Weights form weighted sums of value vectors.
+
+Include and explain the equations:
+
+`S = QKᵀ / sqrt(d_k)`
+
+`A = softmax(S + M)`
+
+`O = AV`
+
+where the causal additive mask M is zero on allowed entries and negative infinity on forbidden entries.
+
+Explain that scaling reduces extreme attention logits associated with growing key dimensionality.
+
+Differentiate:
+
+- Q/K/V feature projections.
+- Similarity scores.
+- Normalized attention weights.
+- Contextualized output representations.
+
+Distinguish unmasked bidirectional attention from causal attention.
+
+Do not falsely equate attention weights with explanations of semantic understanding.
+
+### 6. Mandatory independent hand-calculation example
+
+**This is a graded assignment requirement.**
+
+Produce a complete, accessible derivation in `docs/manual_attention.md`.
+
+Use **exactly three tokens** and:
+
+- `d_k = 2`
+- `d_v = 2`
+- Q shape `(3, 2)`
+- K shape `(3, 2)`
+- V shape `(3, 2)`
+
+Choose small, explicit numeric matrices to make independent verification possible.
+
+One suitable candidate is:
+
+```text
+Q = [[1, 0],
+     [0, 1],
+     [1, 1]]
+
+K = [[1, 0],
+     [0, 1],
+     [1, 1]]
+
+V = [[1, 2],
+     [3, 0],
+     [0, 4]]
+```
+
+You may use this example, but all subsequent arithmetic must be derived and checked independently.
+
+Never simply paste values generated by PyTorch and describe them as manually calculated.
+
+Perform every required calculation, step by step.
+
+#### 6.1 Explicit Q, K and V
+
+Write all matrices in mathematical notation.
+
+Label dimensions and token rows.
+
+Explain what each matrix represents.
+
+#### 6.2 Compute QKᵀ by hand
+
+Show the transpose of K.
+
+For each of the nine output entries, show the underlying dot product.
+
+Produce the complete unscaled `(3,3)` score matrix.
+
+No skipped arithmetic.
+
+#### 6.3 Scale by sqrt(2)
+
+Show the scaling expression.
+
+Compute every scaled score.
+
+Give both exact expressions and a consistent decimal approximation.
+
+Explain why the scale factor is `sqrt(d_k)`.
+
+#### 6.4 Row-wise softmax
+
+For all three rows:
+
+- Show the exponentials.
+- Show the normalization denominator.
+- Calculate the probability of each attended position.
+- Show the resulting attention weight matrix.
+- Verify each row sums to approximately 1.
+
+Explain the difference between applying softmax across keys and applying it over an incorrect axis.
+
+#### 6.5 Compute attention output
+
+Calculate:
+
+`O = A @ V`
+
+Show all six output values.
+
+For each token, write the weighted linear combination of value vectors.
+
+Present the final `(3,2)` output matrix.
+
+#### 6.6 Introduce a causal mask
+
+Construct the full mask:
+
+```text
+[[0, -inf, -inf],
+ [0,    0, -inf],
+ [0,    0,    0]]
+```
+
+Apply it to the scaled scores before softmax.
+
+Display:
+
+- Original scaled score matrix.
+- Additive causal mask.
+- Masked score matrix.
+- Masked attention weight matrix.
+- Masked attention output matrix.
+
+Calculate the masked probabilities and outputs, not just the mask itself.
+
+Demonstrate that forbidden attention probabilities are zero.
+
+Explain that the first token attends only to itself, the second can attend to tokens 1–2, and the third can attend to tokens 1–3.
+
+#### 6.7 Interpret the result
+
+Write a concise explanation of what information becomes available to each position.
+
+Explain why an autoregressive language model cannot use future-token information during training or generation.
+
+Contrast this with unrestricted attention in an encoder-style model.
+
+Discuss the difference between parallel training with causal masking and sequential autoregressive generation.
+
+### 7. Academic integrity of the manual artifact
+
+The PDF requires evidence that Zaid understands and can manually calculate the attention operation.
+
+Prepare a fully auditable worked solution, with explicit arithmetic and an independent numerical verification appendix.
+
+Do not fabricate a handwritten scan, signature, photographed notebook page or personal attestation.
+
+Mark the derivation as requiring **Zaid's mathematical review and understanding** before final submission.
+
+If an actual handwritten artifact is wanted, provide the complete mathematical steps so Zaid can reproduce them himself.
+
+A NumPy/PyTorch verification program supplements the hand calculation; it does not replace it.
+
+### 8. Implement the general scaled dot-product attention engine
+
+Develop a clean PyTorch implementation from scratch.
+
+The implementation must support:
+
+- Arbitrary valid sequence length.
+- Arbitrary positive feature dimensions.
+- Matching query/key feature dimensions.
+- Configurable value dimensions.
+- Batch dimensions.
+- Scaled dot-product attention.
+- Optional causal masking.
+- Optional explicit attention masks, if compatible with the chosen clear API.
+- Correct normalization over the key dimension.
+- Attention output and attention weights.
+- Standard PyTorch automatic differentiation.
+
+Use tensor operations such as matrix multiplication, `torch.softmax`, and standard masks, as explicitly permitted by the assignment.
+
+Do not use a high-level black-box Transformer model implementation.
+
+The educational attention calculation must be visible and inspectable in Zaid's own source.
+
+Avoid delegating the complete attention operation to `torch.nn.functional.scaled_dot_product_attention`, because the assignment requires understanding and implementing the individual operations.
+
+A well-designed public API can be:
+
+`scaled_dot_product_attention(q, k, v, causal=False, mask=None)`
+
+Adapt the interface if needed to maintain correct types and consistent semantics.
+
+Clearly document shapes, dtypes, mask conventions and return values.
+
+Prefer a pure attention computation that does not yet introduce trainable Q/K/V projections. Those belong to the complete multi-head attention module in Phase 3.
+
+### 9. Shape contracts and correctness
+
+Support and test a documented shape convention, such as:
+
+- Q: `(batch, query_length, d_k)`
+- K: `(batch, key_length, d_k)`
+- V: `(batch, key_length, d_v)`
+
+Return:
+
+- Output: `(batch, query_length, d_v)`
+- Weights: `(batch, query_length, key_length)`
+
+If a leading head dimension is supported for future reuse, specify that behavior explicitly and ensure masks broadcast correctly.
+
+Do not assume Q and K sequence lengths must always be identical in the unmasked case.
+
+For causal self-attention, define a precise alignment rule. The safest Phase 2 contract is to require equal query/key sequence lengths unless a separately defined offset or causal alignment is provided.
+
+Reject unsupported ambiguous causal shapes instead of silently producing an incorrect mask.
+
+Validate that:
+
+- All dimensions are compatible.
+- Key sequence length matches the value sequence length.
+- Query/key feature dimensions agree.
+- d_k is positive.
+- Inputs use compatible devices and floating-point dtypes.
+- Incompatible masks raise clear errors.
+- Unsupported empty sequences are rejected.
+- Invalid shapes fail predictably.
+
+A feature dimension is not an attention-score matrix dimension. Never divide by `sqrt(sequence_length)`.
+
+### 10. Mask implementation
+
+Implement causal masking explicitly using an upper-triangular forbidden-position mask or an equivalent method.
+
+For a three-token sequence, the forbidden positions are:
+
+- Row 1, columns 2 and 3.
+- Row 2, column 3.
+- No forbidden positions in row 3.
+
+Use unambiguous naming such as `forbidden_mask`, where `True` means the key is blocked.
+
+If you expose a user mask with another convention, document and test it. Avoid silently reversing boolean-mask meaning between call sites.
+
+Apply masks **before** softmax.
+
+Test that:
+
+1. Forbidden positions produce zero weight.
+2. Allowed weights sum to 1 when at least one key is available.
+3. Future-token influence is excluded.
+4. Different sequence lengths produce correct triangular structure.
+5. Batch dimensions do not alter mask alignment.
+6. Mask broadcast errors are detected.
+7. A row with every key forbidden is not silently converted into NaNs or fabricated uniform attention.
+
+Define an explicit policy for fully masked rows: reject them with a clear error or support a mathematically documented zero-output behavior. The ordinary causal self-attention case should always have at least the current token available.
+
+Do not mask after softmax and renormalize as an undocumented substitute.
+
+### 11. Numerical stability and gradient correctness
+
+Avoid unnecessary numerical instability.
+
+Test:
+
+- Large finite attention logits.
+- Repeated/identical vectors.
+- Zero vectors.
+- Negative values.
+- Mixed signs.
+- A single-token sequence.
+- Non-square unmasked Q/K attention.
+- Finite forward outputs.
+- Finite backward gradients for Q, K and V.
+- Zero gradient contribution from a forbidden future value to an earlier output.
+- Correct row normalization.
+
+Use PyTorch softmax rather than implementing unstable naive exponentiation in production code.
+
+Use appropriate numeric tolerances and specify whether comparisons are float32 or float64.
+
+Do not introduce silent CPU fallback or unnecessary half precision.
+
+Do not claim GPU verification when only CPU tests have run.
+
+### 12. Independent reference validation
+
+Write a numerical verification program that independently reconstructs the manual three-token example.
+
+Compare:
+
+- QKᵀ.
+- Scaled score matrix.
+- Unmasked softmax weights.
+- Unmasked attention output.
+- Masked scores.
+- Masked softmax weights.
+- Masked attention output.
+
+The manual document must contain the actual values and intermediate derivations.
+
+The verification script should fail loudly if any reference comparison exceeds a justified tolerance.
+
+Avoid testing the attention implementation against itself using the same helper routine as both the implementation and the reference.
+
+Where feasible, construct a small independent scalar-loop reference for verification rather than calling the implementation under test.
+
+### 13. Comprehensive automated tests
+
+Add `tests/test_attention.py` with independently meaningful tests covering:
+
+1. Canonical three-token mathematical example.
+2. Expected output shape.
+3. Expected attention-weight shape.
+4. Row normalization.
+5. Correct scaling factor.
+6. Causal mask structure.
+7. Exact forbidden-position zero weights.
+8. Future-token perturbation invariance.
+9. Gradient flow through Q/K/V.
+10. Zero future-value gradient influence for earlier tokens.
+11. Batch independence.
+12. Non-square unmasked attention shapes.
+13. Single-token causal behavior.
+14. Incorrect Q/K feature dimensions.
+15. Incorrect K/V sequence dimensions.
+16. Invalid mask shape.
+17. Incompatible dtype/device behavior.
+18. Nonfinite-input handling policy.
+19. Fully masked-row behavior.
+20. Numerical agreement with the independent reference.
+
+Add additional cases where needed, but prioritize mathematical coverage over arbitrary test counts.
+
+Maintain all Phase 1 tests.
+
+### 14. Genuine attention evidence — Figure F01
+
+Create the required hand-calculation evidence figure.
+
+It must show:
+
+- Explicit Q/K/V.
+- QKᵀ matrix.
+- Scaled scores.
+- Row-softmax weights.
+- Weighted V output.
+- Labels, dimensions, and consistent rounding.
+
+The document and figure must agree numerically.
+
+Do not create an image containing fictitious results or inaccessible source context.
+
+Use the actual verified worked example.
+
+If producing the image programmatically, preserve the script and resulting PNG/PDF.
+
+The report should cite the original mathematics and the generated evidence.
+
+### 15. Genuine causal-mask evidence — Figure F02
+
+Create a clearly labeled causal mask visualization.
+
+Display at least the three-token upper-triangular restriction, with meaningful key/query labels.
+
+Prefer an additional example at the proposed context length or a small sequence such as 8 tokens for visual clarity.
+
+Show:
+
+- Query-token axis.
+- Key-token axis.
+- Allowed attention positions.
+- Forbidden future positions.
+- Mask convention.
+- Explicit statement that no query attends to a future key.
+
+Do not confuse a mask visualization with a trained-model attention visualization.
+
+**F02 is structural evidence. F07 (attention from a trained model) remains a separate future requirement for Phase 6.**
+
+Generate figures from the implementation and preserve reproducible scripts.
+
+If output files under `outputs/` are ignored, explicitly copy only small validated, report-ready evidence to a tracked location such as `report/evidence/`, without overriding the project's large-artifact security policy.
+
+### 16. Why Transformers — conceptual foundations
+
+Create `docs/why_transformers.md`.
+
+Explain:
+
+#### 16.1 Recurrent sequential computation
+
+Describe how a recurrent model's hidden state at time t depends on the previous hidden state.
+
+Give a simple mathematical recurrence.
+
+Explain why a recurrent layer often requires sequential processing across time during training.
+
+#### 16.2 Transformer parallelism
+
+Explain how a causal Transformer can process all positions in a teacher-forced training sequence simultaneously while blocking future information.
+
+Discuss parallel Q/K/V projections, score matrix calculation and attention-weighted aggregation.
+
+#### 16.3 Sequential depth
+
+Distinguish sequence-length-dependent recurrent computation from Transformer per-layer parallel operations.
+
+Clarify that decoder training can be parallelized across positions, but autoregressive inference still generates the next token sequentially.
+
+#### 16.4 Computational trade-offs
+
+Explain, using reasoned complexity arguments:
+
+- RNN sequence length effects.
+- Attention's quadratic sequence-length score/memory requirement.
+- Transformer feed-forward and projection costs.
+- Parallel GPU efficiency.
+- Attention's ability to connect distant token positions within a layer.
+- The fact that practical speed depends on hardware, batch size, sequence length and implementation.
+
+Avoid the unsupported claim that Transformers always train faster or use less memory than recurrent architectures.
+
+Provide at least one clear comparison table with assumptions.
+
+#### 16.5 Measured or reasoned evidence
+
+The assignment accepts a measured or reasoned comparison.
+
+If no fair benchmark exists yet, provide a carefully reasoned comparison rather than presenting synthetic timing values as measurements.
+
+A bounded educational operation-count example may be included with explicit assumptions.
+
+Do not launch a separate RNN training research project in Phase 2.
+
+### 17. Documentation and traceability updates
+
+Update `docs/assignment_requirements.md`.
+
+Mark only genuinely completed Phase 2 requirements as verified.
+
+Specifically review:
+
+- L01.
+- L02.
+- M01.
+- H01–H07.
+- I04.
+- Relevant parts of I09.
+- F01.
+- F02.
+
+If human arithmetic review is not yet performed, keep that requirement marked as awaiting human verification rather than falsely marking it complete.
+
+Add a Phase 2 section to `docs/phase_log.md` with:
+
+- Starting source commit.
+- Exact implementation decisions.
+- Mathematical example values.
+- Commands executed.
+- Test results.
+- Evidence files.
+- Failures and corrections.
+- Scientific/engineering limitations.
+- Remaining Phase 3 requirements.
+
+Update README to explain how to run the attention example and tests.
+
+Document that the complete model, real training and API are not yet implemented.
+
+### 18. Run the complete verification suite
+
+After implementation:
+
+1. Run all new attention tests.
+2. Run the full pytest suite.
+3. Run Ruff lint and format checks.
+4. Run package installation checks where practical.
+5. Run the independent attention-example verification program.
+6. Regenerate F01/F02 from source scripts.
+7. Verify that figure outputs exist and contain correct content.
+8. Verify the original 54 Phase 1 tests still pass.
+9. Run `git diff --check`.
+10. Review staged files for secrets, unrelated imports, binary sizes and ignored artifacts.
+
+If available, confirm GitHub Actions on Python 3.11 and 3.14 after publishing the branch.
+
+Do not assume CI passes until it actually completes.
+
+### 19. Review criteria for Phase 2
+
+Phase 2 is acceptable only if all the following are satisfied:
+
+- The manual 3-token example is complete and mathematically correct.
+- Every required hand-calculation step is included.
+- The unmasked and masked output matrices are explicitly calculated.
+- Zaid has enough information to independently reproduce the arithmetic.
+- The attention implementation is written using explicit PyTorch operations.
+- Future-token positions are blocked before softmax.
+- Numerical outputs match an independent reference.
+- Shape and mask contracts are precise.
+- Q/K/V gradient behavior is verified.
+- Invalid input cases are handled intentionally.
+- F01 and F02 are genuine, reproducible evidence.
+- The Transformer-versus-RNN explanation is accurate.
+- Existing Phase 1 functionality remains intact.
+- Tests pass locally and on CI when applicable.
+- No pretrained architecture or unrelated code was imported.
+- No future training or deployment work was started.
+
+Do not claim completion merely because files exist.
+
+### 20. Scope boundaries — mandatory
+
+Phase 2 includes:
+
+- Transformer conceptual foundations.
+- Independent manual attention derivation.
+- Scaled dot-product attention.
+- Causal masking.
+- Mathematical and gradient correctness tests.
+- Figures F01/F02.
+- Documentation/evidence.
+
+Phase 2 excludes:
+
+- Full multi-head attention with learned Q/K/V projections.
+- Multi-head split/merge architecture.
+- Sinusoidal positional encoding implementation.
+- Full Transformer blocks.
+- Tokenizer/data-pipeline implementation.
+- Real corpus download or training.
+- GPU training.
+- Ablation experiments.
+- Trained-model text generation.
+- FastAPI deployment.
+- Medium article publication.
+- Final submission.
+
+These later tasks must remain for their respective authorized phases.
+
+### 21. GitHub publication
+
+Work only on the dedicated Phase 2 feature branch.
+
+Commit:
+
+- Legitimate attention implementation.
+- Numerical reference tests.
+- Manual mathematics documentation.
+- Reproducible F01/F02 visualization scripts.
+- Small report-ready evidence.
+- Updated compliance and phase logs.
+
+Do not commit:
+
+- Pretrained model artifacts.
+- Another person's source code.
+- Unrelated assignment artifacts.
+- Model checkpoints.
+- Large generated files.
+- Secrets or credentials.
+
+Push the Phase 2 branch using Zaid's authenticated account.
+
+Open a reviewable PR against the verified main branch.
+
+Do not merge the Phase 2 PR without authorization.
+
+### 22. Required completion report
+
+At the end, provide a detailed report with:
+
+1. Verified repository owner, origin and workspace.
+2. Phase 1 merge receipt and resulting main commit.
+3. Phase 2 branch and exact final commit.
+4. All added/modified files.
+5. Actual three-token Q/K/V values.
+6. Final unmasked attention score/weight/output matrices.
+7. Final masked attention score/weight/output matrices.
+8. Evidence that manual arithmetic matches independent reference calculations.
+9. Attention API signatures and shape contracts.
+10. Causal-mask semantics and failure behavior.
+11. Numerical/gradient correctness test outcomes.
+12. Full local test-suite results.
+13. Python 3.11/3.14 CI results.
+14. Actual F01/F02 paths and figure generation commands.
+15. Transformer-versus-RNN explanation location.
+16. Assignment requirements completed or still awaiting human review.
+17. Errors, fixes and unresolved risks.
+18. PR URL and CI URL.
+19. Exact recommended scope for Phase 3.
+
+### 23. Final stop condition
+
+**EXECUTE PHASE 2 ONLY.**
+
+Do not start Phase 3.
+
+Do not implement later milestones.
+
+Do not launch training or deployment jobs.
+
+Do not merge the Phase 2 PR.
+
+Complete the Phase 2 mathematical, engineering, testing and evidence requirements; return the verified completion report; and **STOP FOR APPROVAL**.
+
+The next phase, after separate review and authorization, will be:
+
+**Phase 3 — Multi-Head Attention, Explicit Head Splitting/Merging and Sinusoidal Positional Encoding.**

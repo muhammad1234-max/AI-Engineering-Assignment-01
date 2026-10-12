@@ -1,0 +1,18 @@
+{
+  "artifact": "report/evidence/F02_causal_mask.png",
+  "sha256": "a9c5bdbabbe6e8cf61b3b34d3079984066cac36c9e8a442a3c675d436a57b2c0",
+  "bytes": 76383,
+  "source_sha256": {
+    "experiments/visualize_causal_mask.py": "8a0ea90f87b0df6954f4757608bd1ae6c083ae3e03d60a6a8b21ea117758108c",
+    "experiments/attention_example.py": "02898d169623dcd5a6993cb7ed3ded5f57d8bdfb75674eb182226665b5da0f54",
+    "src/zaid_lm/attention.py": "e3c2402cd8d2815e23977b3645a74c722c94173d48ed68161d006b75eea8683a"
+  },
+  "details": {
+    "kind": "structural causal mask",
+    "lengths": [
+      3,
+      8
+    ],
+    "rule": "True blocks key j > query i; diagonal allowed"
+  }
+}

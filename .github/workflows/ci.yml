@@ -1,4 +1,4 @@
-name: Phase 1 foundation
+name: Foundation and attention correctness
 on: [push, pull_request]
 permissions:
   contents: read
@@ -21,5 +21,8 @@ jobs:
       - run: python -m pytest -q
       - run: python -m ruff check .
       - run: python -m ruff format --check .
+      - run: python scripts/verify_repository.py
       - run: python -m zaid_lm --config configs/baseline.json --device cpu
+      - run: python -m experiments.attention_example --figure
+      - run: python -m experiments.visualize_causal_mask
       - run: python -m build --no-isolation

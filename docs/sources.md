@@ -60,3 +60,30 @@ For every later equation/tutorial/adapted implementation/figure record original 
 URL/version, exact adaptation and license/rights. Add primary Transformer/BERT/GPT
 papers when actually reviewed. Zaid/team must understand all components and review
 manual arithmetic. A source bibliography never substitutes for real measured evidence.
+
+## Phase 2 reviewed sources and independent work
+
+* Current Desktop handoff is preserved byte-for-byte in `phase2_instructions.txt`.
+  Root `instructions.txt` remains the historical Phase 1 document. The supplied
+  independent master remains Version 1.0; no Version 1.1 document was invented.
+* Vaswani, Shazeer, Parmar, Uszkoreit, Jones, Gomez, Kaiser and Polosukhin (2017),
+  **Attention Is All You Need**, arXiv:1706.03762, reviewed HTML revision v7:
+  https://arxiv.org/html/1706.03762v7. §3.2.1 supplies scaled dot-product mathematics
+  and its variance motivation; §4/Table 1 supports the idealized sequential-depth
+  comparison. Our recurrence, explicit cost assumptions and bounded MAC arithmetic
+  are reasoned educational analysis, not reproduced paper benchmark results.
+* PyTorch 2.10 softmax API: https://docs.pytorch.org/docs/2.10/generated/torch.softmax.html.
+  Elementary tensor matmul/masking/softmax and autograd are used; no model source
+  or fused attention implementation was copied or called.
+* Matplotlib 3.10.8 package metadata: https://pypi.org/project/matplotlib/3.10.8/;
+  savefig API: https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.savefig.html.
+  Compatible cp314 Windows wheel installed; other supported CI versions checked
+  separately. A development dependency, not a training dependency or speed result.
+
+Q/K/V are the authorized handoff's proposed simple example. All exact arithmetic is
+written out independently in `manual_attention.md`; scalar loops reconstruct it,
+then explicit PyTorch attention independently corroborates the results. No handwritten
+artifact, personal attestation or trained semantic result is fabricated. F01/F02 are
+original programmatic figures from the scripts, with content/source SHA256 receipts.
+Zaid's personal review remains required. PDF curriculum code and any unrelated
+assignment checkout were not consulted or copied in this phase.

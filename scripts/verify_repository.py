@@ -1,6 +1,7 @@
 """Read-only Git-index audit. Reports findings without printing suspected secrets."""
 
 import ast
+import hashlib
 import json
 import re
 import subprocess
@@ -8,6 +9,10 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 EXPECTED_REMOTE = "https://github.com/zaidbinnaveed/AI-Engineering-Assignment-01.git"
+EVIDENCE_PNGS = {
+    "report/evidence/F01_manual_attention.png",
+    "report/evidence/F02_causal_mask.png",
+}
 
 
 def git(*args: str) -> bytes:
@@ -18,7 +23,7 @@ def main() -> int:
     findings: list[dict[str, str]] = []
     for line in git("remote", "-v").decode().splitlines():
         name, url, _ = line.split()
-        if name != "origin" or url != EXPECTED_REMOTE:
+        if name != "origin" or url.removesuffix(".git") != EXPECTED_REMOTE.removesuffix(".git"):
             findings.append({"file": "git remote", "reason": "unexpected destination"})
     paths = [name.decode("utf-8") for name in git("ls-files", "-z").split(b"\0") if name]
     if not paths:
@@ -34,7 +39,30 @@ def main() -> int:
     for name in paths:
         content = git("show", f":{name}")
         max_bytes = max(max_bytes, len(content))
-        if len(content) > 1_000_000 or b"\0" in content:
+        if name in EVIDENCE_PNGS:
+            if len(content) > 500_000 or not content.startswith(b"\x89PNG\r\n\x1a\n"):
+                findings.append({"file": name, "reason": "invalid or oversized evidence PNG"})
+            receipt_path = str(Path(name).with_suffix(".json")).replace("\\", "/")
+            if receipt_path not in paths:
+                findings.append({"file": name, "reason": "missing evidence provenance receipt"})
+            else:
+                receipt = json.loads(git("show", f":{receipt_path}"))
+                if (
+                    receipt.get("sha256") != hashlib.sha256(content).hexdigest()
+                    or receipt.get("bytes") != len(content)
+                    or receipt.get("artifact") != name
+                ):
+                    findings.append({"file": name, "reason": "evidence content hash mismatch"})
+                sources = receipt.get("source_sha256", {})
+                if not sources:
+                    findings.append({"file": name, "reason": "missing evidence source hashes"})
+                for source, digest in sources.items():
+                    if (
+                        source not in paths
+                        or hashlib.sha256(git("show", f":{source}")).hexdigest() != digest
+                    ):
+                        findings.append({"file": name, "reason": "evidence source hash mismatch"})
+        elif len(content) > 1_000_000 or b"\0" in content:
             findings.append({"file": name, "reason": "large or binary content"})
         if any(re.search(pattern, content) for pattern in patterns):
             findings.append({"file": name, "reason": "possible credential/private key"})

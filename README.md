@@ -9,9 +9,12 @@ trained on Tiny Shakespeare, with numerical attention derivations, controlled
 experiments, and usable inference. The academic specification is `A1_AIE.pdf`
 (11 pages); its source identity is recorded in [requirements](docs/assignment_requirements.md).
 
-**Current status: Phase 1 foundation only.** Configuration validation, package imports,
-CPU seed controls, and configuration inspection work. Attention, a model, a tokenizer,
-training, inference, deployment and completed experiments are not yet implemented or claimed.
+**Current status: Phase 2 attention engine and worked mathematics implemented.**
+Configuration validation, CPU seed controls, configuration inspection, explicit
+scaled dot-product attention and causal masking work. Independent scalar checks,
+gradient tests and F01/F02 evidence accompany the complete typed derivation.
+Zaid's personal mathematical review remains required before submission (H07/M01).
+The complete model, tokenizer, training, text generation and API remain future work.
 The configuration CLI below does not generate text or train a model.
 
 ## Installation
@@ -38,11 +41,12 @@ python3 -m venv .venv-phase1
 .venv-phase1/bin/python -m pip install --no-build-isolation -e .
 ```
 
-CPU-only PyTorch is intentional for Phase 1. CUDA dependencies and hardware/run
+CPU-only PyTorch is intentional for these development phases. CUDA dependencies and hardware/run
 qualification belong to an explicitly approved future phase. If a platform has no
 compatible wheel, report the install error rather than running an unapproved GPU job.
 Direct dependencies are pinned in `requirements.txt` and `pyproject.toml`; the
-tested full Windows environment is recorded in `docs/environment-windows-py314.txt`.
+Phase 1 Windows environment is recorded in `docs/environment-windows-py314.txt`;
+Phase 2 adds pinned Matplotlib 3.10.8, with its environment recorded separately.
 
 ## Development commands
 
@@ -64,6 +68,44 @@ directory; `output_path` is a `pathlib.Path` and does not create directories on 
 Formatting for contributors: `python -m ruff format .`; lint: `python -m ruff check .`.
 The GitHub workflow runs CPU checks only, with read-only repository permissions.
 
+## Attention mathematics and evidence
+
+From the repository root after installation:
+
+```powershell
+.\.venv-phase1\Scripts\python.exe -m pytest tests/test_attention.py -q
+.\.venv-phase1\Scripts\python.exe -m experiments.attention_example --figure
+.\.venv-phase1\Scripts\python.exe -m experiments.visualize_causal_mask
+```
+
+Linux equivalents use `.venv-phase1/bin/python`. The first experiment fails loudly
+if any of seven manual/scalar/engine intermediates disagree, then generates F01.
+The second verifies index-based causal visibility at 3 and 8 tokens, then generates
+F02. Figures are written to ignored `outputs/figures/`; only the two small validated
+PNGs and hash receipts are copied to tracked `report/evidence/`. Both are educational
+evidence, without a trained model. Reproduction can vary pixels across fonts/platforms;
+numeric comparisons and source/content hashes identify the evidence actually generated.
+
+Read the [full arithmetic](docs/manual_attention.md) and
+[reasoned RNN/Transformer comparison](docs/why_transformers.md).
+The former includes every dot product, exponent/denominator, probability and weighted
+output, both unrestricted and causal. Zaid must personally review and reproduce it.
+
+```python
+from zaid_lm.attention import causal_forbidden_mask, scaled_dot_product_attention
+
+output, weights = scaled_dot_product_attention(q, k, v, causal=True)
+```
+
+Inputs are Q `(..., Tq, dk)`, K `(..., Tk, dk)`, V `(..., Tk, dv)`;
+identical batch/head leading axes, float32/float64, finite values, same device.
+Output is `(..., Tq, dv)`, weights `(..., Tq, Tk)`. Unmasked lengths may differ;
+causal lengths must match with aligned indices. Optional `mask=` broadcasts to weights:
+bool True blocks, or additive same-dtype 0/-inf. Masks combine with causal restrictions.
+Empty/mismatched inputs, incompatible masks, all-blocked rows, nonfinite inputs and
+overflowing scores fail explicitly. No learned projections, fused attention, dropout,
+precision conversion or device fallback. Verification is CPU only.
+
 ## Configuration proposal
 
 See [baseline rationale](docs/architecture.md). `configs/baseline.json` proposes:
@@ -78,17 +120,17 @@ context. Hardware qualification must finalize batch size, steps, device and budg
 
 | Location | Purpose and status |
 | --- | --- |
-| `src/zaid_lm/` | Installed Python package: configuration, seed utilities, configuration CLI |
+| `src/zaid_lm/` | Installed package: configuration, seeds, inspection CLI, explicit attention/masks |
 | `configs/` | Validated baseline proposal |
-| `tests/` | Phase 1 behavioral tests; architecture tests added in later phases |
+| `tests/` | Preserved Phase 1 tests plus numerical/shape/mask/gradient attention tests |
 | `docs/` | Compliance matrix, architecture, source attribution, phase log and verification receipts |
-| `experiments/` | Reserved for evaluation, attention inspection and controlled ablations |
+| `experiments/` | Independent attention verification and F01/F02 generators; later ablations pending |
 | `notebooks/` | Reserved for a portable, actually demonstrated Colab notebook |
 | `api/` | Reserved for future FastAPI and hosting packaging |
-| `report/` | Reserved for report/article, class presentation and recording plan |
+| `report/evidence/` | Small F01/F02 PNGs, verification/provenance receipts; final report pending |
 | `data/` | Dataset provenance plan; actual datasets ignored |
 | `checkpoints/` | Future weights and metadata, ignored |
-| `outputs/{figures,logs,samples}/` | Future genuine evidence; generated files ignored |
+| `outputs/{figures,logs,samples}/` | F01/F02 generated here; logs/model samples remain future; ignored |
 | `.github/workflows/ci.yml` | Minimal CPU installation, tests, formatting and build checks |
 
 Future pipeline: training-only tokenizer -> shifted batches -> token embeddings +
@@ -139,4 +181,6 @@ NumPy and the CPU PyTorch generator and can explicitly qualify CUDA/MPS later;
 unsupported devices raise errors. Repeatability is scoped to the same hardware/software,
 not guaranteed across PyTorch releases or platforms.
 
-Phase 1 results, limitations and the stop condition are in [phase log](docs/phase_log.md).
+Phase results, limitations and approval boundaries are in [phase log](docs/phase_log.md).
+The detailed Phase 2 verification/publication receipt is in
+[completion report](docs/phase2_completion_report.md). Phase 3 requires separate approval.
