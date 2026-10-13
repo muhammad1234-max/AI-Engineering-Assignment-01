@@ -24,7 +24,7 @@ export const DEFAULT_SETTINGS: Settings = {
   topP: 0.9,
   repPenalty: 1.05,
   seed: "",
-  apiBase: "http://localhost:8000",
+  apiBase: (import.meta.env.VITE_API_BASE_URL as string) || "http://localhost:8000",
 };
 
 export const uid = () => Math.random().toString(36).slice(2, 10);
