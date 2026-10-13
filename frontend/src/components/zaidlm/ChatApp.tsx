@@ -6,7 +6,7 @@ import {
 } from "lucide-react";
 import { QuillLogo } from "./Brand";
 import {
-  CHIPS, DEFAULT_SETTINGS, STARTERS, fetchCompletion, pingApi, seedThreads, uid,
+  CHIPS, DEFAULT_SETTINGS, PROD_API_BASE, STARTERS, fetchCompletion, pingApi, seedThreads, uid,
   type Message, type Settings, type Stats, type Thread,
 } from "@/lib/zaidlm";
 
@@ -108,14 +108,37 @@ export function ChatApp() {
       const t = JSON.parse(localStorage.getItem(LS) || "null");
       setThreads(Array.isArray(t) && t.length ? t : seedThreads());
       const s = JSON.parse(localStorage.getItem(LS_SET) || "null");
-      if (s) setSettings({ ...DEFAULT_SETTINGS, ...s });
+      if (s) {
+        // Upgrade legacy default 80 tokens to 35 for free-tier responsiveness
+        if (s.maxTokens === 80) s.maxTokens = 35;
+        // Upgrade legacy localhost:8000 to production backend if on remote domain
+        if (!s.apiBase || s.apiBase === "http://localhost:8000" || s.apiBase.includes("localhost")) {
+          if (typeof window !== "undefined" && window.location.hostname !== "localhost") {
+            s.apiBase = PROD_API_BASE;
+          }
+        }
+        if (s.apiBase) s.apiBase = s.apiBase.trim().replace(/\/+$/, "");
+        setSettings({ ...DEFAULT_SETTINGS, ...s });
+      }
     } catch { setThreads(seedThreads()); }
     if (window.innerWidth < 768) setCollapsed(true);
     loaded.current = true;
   }, []);
   useEffect(() => { if (loaded.current) localStorage.setItem(LS, JSON.stringify(threads)); }, [threads]);
   useEffect(() => { if (loaded.current) localStorage.setItem(LS_SET, JSON.stringify(settings)); }, [settings]);
-  useEffect(() => { pingApi(settings.apiBase).then(setOnline); }, [settings.apiBase]);
+  useEffect(() => {
+    let active = true;
+    const check = async () => {
+      const ok = await pingApi(settings.apiBase);
+      if (active) setOnline(ok);
+    };
+    check();
+    const interval = setInterval(check, 15000);
+    return () => {
+      active = false;
+      clearInterval(interval);
+    };
+  }, [settings.apiBase]);
 
   const active = threads.find((t) => t.id === activeId) ?? null;
   const messages = active?.messages ?? [];
@@ -168,10 +191,10 @@ export function ChatApp() {
         /* aborted by user */
       } else {
         setOnline(false);
-        const errMsg = "Could not connect to the backend model";
-        toast.error(errMsg);
+        const rawErr = err instanceof Error ? err.message : String(err);
+        toast.error(rawErr);
         patchMsg(tid, mid, {
-          content: `${errMsg}. Please ensure the backend server is running on ${settings.apiBase}.`,
+          content: `${rawErr}. Please verify that the backend is running on ${settings.apiBase}. (Note: Free-tier Render instances take ~50s to wake up on first request).`,
           error: true,
         });
       }
@@ -301,10 +324,14 @@ export function ChatApp() {
               </div>
             )}
           </div>
-          <span className={`ml-1 flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-mono font-medium ${online ? "border-success/40 bg-success/10 text-success" : online === false ? "border-destructive/40 bg-destructive/10 text-destructive" : "border-border bg-muted/40 text-muted-foreground"}`}>
+          <button
+            onClick={testConn}
+            title="Click to verify connection"
+            className={`ml-1 flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-mono font-medium transition hover:opacity-80 ${online ? "border-success/40 bg-success/10 text-success" : online === false ? "border-destructive/40 bg-destructive/10 text-destructive" : "border-border bg-muted/40 text-muted-foreground"}`}
+          >
             <span className={`h-1.5 w-1.5 rounded-full ${online ? "bg-success" : online === false ? "bg-destructive" : "bg-muted-foreground"} anim-breathe`} />
-            {online === null ? "Verifying..." : online ? "API Live (:8000)" : "Model Offline"}
-          </span>
+            {online === null ? "Verifying..." : online ? "Model Online" : "Model Offline (Click to Retry)"}
+          </button>
           <button aria-label="Tuning deck" onClick={() => setDrawer(true)} className="ml-auto flex items-center gap-1.5 rounded-lg border border-border bg-card/60 px-2.5 py-1.5 text-xs font-medium text-muted-foreground hover:border-gold/50 hover:text-gold transition">
             <SlidersHorizontal size={14} />
             <span className="hidden sm:inline">Tuning Deck</span>
@@ -515,7 +542,10 @@ export function ChatApp() {
               ))}
             </div>
           </div>
-          <Slider label="Max New Tokens" value={settings.maxTokens} min={20} max={256} step={1} onChange={(v) => setSettings({ ...settings, maxTokens: v })} />
+          <div>
+            <Slider label="Max New Tokens" value={settings.maxTokens} min={10} max={256} step={1} onChange={(v) => setSettings({ ...settings, maxTokens: v })} />
+            <p className="mt-1 text-[11px] text-muted-foreground">Free CPU generates ~1 tok/s. 20–40 tokens recommended for fast response.</p>
+          </div>
           <Slider label="Top-k" value={settings.topK} min={0} max={65} step={1} onChange={(v) => setSettings({ ...settings, topK: v })} />
           <Slider label="Top-p (Nucleus)" value={settings.topP} min={0.1} max={1} step={0.01} fmt={(v) => v.toFixed(2)} onChange={(v) => setSettings({ ...settings, topP: v })} />
           <Slider label="Repetition Penalty" value={settings.repPenalty} min={1} max={1.5} step={0.01} fmt={(v) => v.toFixed(2)} onChange={(v) => setSettings({ ...settings, repPenalty: v })} />

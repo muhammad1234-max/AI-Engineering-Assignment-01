@@ -17,14 +17,16 @@ export type Settings = {
   apiBase: string;
 };
 
+export const PROD_API_BASE = "https://shakespearean-llm-api.onrender.com";
+
 export const DEFAULT_SETTINGS: Settings = {
   temperature: 0.8,
-  maxTokens: 80,
+  maxTokens: 35,
   topK: 40,
   topP: 0.9,
   repPenalty: 1.05,
   seed: "",
-  apiBase: (import.meta.env.VITE_API_BASE_URL as string) || "http://localhost:8000",
+  apiBase: (import.meta.env.VITE_API_BASE_URL as string) || PROD_API_BASE,
 };
 
 export const uid = () => Math.random().toString(36).slice(2, 10);
@@ -40,9 +42,9 @@ export const CHIPS = ["ROMEO:", "JULIET:", "HAMLET:", "KING CLAUDIUS:", "MACBETH
 
 export async function pingApi(base: string): Promise<boolean> {
   try {
-    const clean = base.trim().replace(/\/+$/, "");
+    const clean = (base || PROD_API_BASE).trim().replace(/\/+$/, "");
     const c = new AbortController();
-    const t = setTimeout(() => c.abort(), 15000);
+    const t = setTimeout(() => c.abort(), 25000);
     const res = await fetch(clean + "/health", { signal: c.signal, mode: "cors" });
     clearTimeout(t);
     return res.ok;
@@ -55,19 +57,23 @@ export async function pingApi(base: string): Promise<boolean> {
 export async function fetchCompletion(prompt: string, s: Settings, signal: AbortSignal): Promise<{ text: string; latency: number }> {
   const started = performance.now();
   const c = new AbortController();
-  const timeoutId = setTimeout(() => c.abort(), 90000);
+  let didTimeout = false;
+  const timeoutId = setTimeout(() => {
+    didTimeout = true;
+    c.abort();
+  }, 120000);
   const onAbort = () => c.abort();
   signal.addEventListener("abort", onAbort);
 
   try {
-    const clean = s.apiBase.trim().replace(/\/+$/, "");
-    const res = await fetch(clean + "/generate", {
+    const targetBase = (s.apiBase || PROD_API_BASE).trim().replace(/\/+$/, "");
+    const res = await fetch(targetBase + "/generate", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       signal: c.signal,
       body: JSON.stringify({
         prompt,
-        max_new_tokens: s.maxTokens,
+        max_new_tokens: Math.min(Math.max(s.maxTokens, 1), 256),
         temperature: s.temperature,
         top_k: s.topK,
         top_p: s.topP,
@@ -80,7 +86,7 @@ export async function fetchCompletion(prompt: string, s: Settings, signal: Abort
       let detail = `HTTP ${res.status}`;
       try {
         const j = await res.json();
-        if (j?.detail) detail = String(j.detail);
+        if (j?.detail) detail = typeof j.detail === "string" ? j.detail : JSON.stringify(j.detail);
       } catch { /* ignore */ }
       throw new Error(detail);
     }
@@ -94,8 +100,11 @@ export async function fetchCompletion(prompt: string, s: Settings, signal: Abort
     if (signal.aborted) {
       throw new DOMException("aborted", "AbortError");
     }
+    if (didTimeout) {
+      throw new Error("Request timed out after 120s (free-tier CPU generation or cold start latency exceeded)");
+    }
     const message = err instanceof Error ? err.message : "Network error";
-    throw new Error(`Could not connect to the backend model (${message})`);
+    throw new Error(`Could not connect to backend (${message})`);
   } finally {
     clearTimeout(timeoutId);
     signal.removeEventListener("abort", onAbort);
