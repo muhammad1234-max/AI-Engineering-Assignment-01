@@ -46,15 +46,6 @@ def load_model_state():
     ckpt_path = get_checkpoint_path()
     device = "cuda" if torch.cuda.is_available() else "cpu"
 
-    if not ckpt_path.exists():
-        download_url = os.getenv("ZAID_LM_CHECKPOINT_URL")
-        if download_url:
-            print(f"Downloading checkpoint from {download_url}...")
-            ckpt_path.parent.mkdir(parents=True, exist_ok=True)
-            import urllib.request
-            urllib.request.urlretrieve(download_url, ckpt_path)
-            print(f"Downloaded checkpoint to {ckpt_path}.")
-
     if ckpt_path.exists():
         ckpt = load_checkpoint(ckpt_path, device=device)
         _STATE["model"] = ckpt["model"]

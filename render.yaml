@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: zaid-lm-api
+    name: shakespearean-llm-api
     runtime: docker
     dockerfilePath: ./Dockerfile
     plan: free
