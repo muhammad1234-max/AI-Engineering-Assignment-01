@@ -40,9 +40,10 @@ export const CHIPS = ["ROMEO:", "JULIET:", "HAMLET:", "KING CLAUDIUS:", "MACBETH
 
 export async function pingApi(base: string): Promise<boolean> {
   try {
+    const clean = base.trim().replace(/\/+$/, "");
     const c = new AbortController();
-    const t = setTimeout(() => c.abort(), 4000);
-    const res = await fetch(base.replace(/\/$/, "") + "/health", { signal: c.signal, mode: "cors" });
+    const t = setTimeout(() => c.abort(), 15000);
+    const res = await fetch(clean + "/health", { signal: c.signal, mode: "cors" });
     clearTimeout(t);
     return res.ok;
   } catch {
@@ -54,12 +55,13 @@ export async function pingApi(base: string): Promise<boolean> {
 export async function fetchCompletion(prompt: string, s: Settings, signal: AbortSignal): Promise<{ text: string; latency: number }> {
   const started = performance.now();
   const c = new AbortController();
-  const timeoutId = setTimeout(() => c.abort(), 60000);
+  const timeoutId = setTimeout(() => c.abort(), 90000);
   const onAbort = () => c.abort();
   signal.addEventListener("abort", onAbort);
 
   try {
-    const res = await fetch(s.apiBase.replace(/\/$/, "") + "/generate", {
+    const clean = s.apiBase.trim().replace(/\/+$/, "");
+    const res = await fetch(clean + "/generate", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       signal: c.signal,
