@@ -42,12 +42,12 @@ export function Splash({ onDone }: { onDone: () => void }) {
           style={{ left: `${p.l}%`, top: `${p.t}%`, width: p.s, height: p.s, animationDuration: `${p.d}s`, animationDelay: `${p.delay}s`, boxShadow: "var(--glow-gold)" }} />
       ))}
       <div className="anim-pop rounded-full p-6 glow-gold"><QuillLogo size={110} animate /></div>
-      <h1 className="anim-rise mt-8 font-display text-5xl md:text-6xl font-semibold text-title-gradient text-center" style={{ animationDelay: ".5s" }}>Shakespearean LLM</h1>
-      <p className="anim-rise mt-3 px-6 text-center font-mono text-xs tracking-wide text-muted-foreground" style={{ animationDelay: ".8s" }}>
-        Causal Language Modeling from Mathematical Primitives • 809k Parameters
+      <h1 className="anim-rise mt-8 font-display text-5xl md:text-6xl font-semibold text-gold text-center tracking-tight" style={{ animationDelay: ".3s" }}>Shakespearean LLM</h1>
+      <p className="anim-rise mt-3 px-6 text-center font-mono font-tabular text-xs tracking-label uppercase text-muted-foreground" style={{ animationDelay: ".5s" }}>
+        809,984-Parameter Pre-LN Causal Transformer • Tiny Shakespeare
       </p>
-      <button onClick={(e) => { e.stopPropagation(); leave(); }} className="absolute bottom-8 right-8 rounded-full border px-4 py-1.5 text-xs text-muted-foreground hover:text-foreground">
-        Skip →
+      <button onClick={(e) => { e.stopPropagation(); leave(); }} className="absolute bottom-8 right-8 rounded-full border border-border bg-card/60 px-4 py-1.5 text-xs text-muted-foreground hover:border-gold/50 hover:text-gold transition">
+        Enter Studio →
       </button>
     </div>
   );

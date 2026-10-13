@@ -38,3 +38,6 @@ frontend/dist/
 frontend/dist-ssr/
 frontend/.vinxi/
 frontend/.tanstack/
+frontend/.wrangler/
+frontend/.lovable/
+.impeccable/
